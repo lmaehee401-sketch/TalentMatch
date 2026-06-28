@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentMatch — AI简历语义匹配助手</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --card: #1a1a2e;
+    --border: #2a2a4a;
+    --text: #e0e0f0;
+    --text2: #9898b8;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00d2a0;
+    --yellow: #ffc048;
+    --red: #ff6b6b;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1a3e 0%, #0f0f2a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky; top:0; z-index:10;
+  }
+  .header-inner {
+    max-width: 1200px; margin:0 auto; padding:0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display:flex; align-items:center; gap:12px; }
+  .logo-icon {
+    width:40px; height:40px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px; display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+  }
+  .logo h1 { font-size:20px; font-weight:700; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .api-status {
+    display:flex; align-items:center; gap:8px;
+    font-size:13px; color: var(--text2);
+  }
+  .api-dot { width:8px; height:8px; border-radius:50%; }
+  .api-dot.ok { background: var(--green); }
+  .api-dot.no { background: var(--red); }
+
+  /* Main */
+  .main { max-width: 1200px; margin:0 auto; padding:32px 24px; }
+
+  /* Input Section */
+  .input-section { display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px; }
+  @media (max-width:768px) { .input-section { grid-template-columns: 1fr; } }
+
+  .input-card {
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding:20px; display:flex; flex-direction:column;
+  }
+  .input-card h3 {
+    font-size:15px; margin-bottom:4px; display:flex; align-items:center; gap:8px;
+  }
+  .input-card .hint { font-size:12px; color: var(--text2); margin-bottom:12px; }
+  .input-card textarea {
+    flex:1; min-height:200px; background:#0a0a18; border:1px solid var(--border);
+    border-radius:8px; padding:14px; color: var(--text); font-size:13px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    line-height: 1.6; resize:vertical;
+    transition: border-color 0.2s;
+  }
+  .input-card textarea:focus { outline:none; border-color: var(--accent); }
+  .input-card textarea::placeholder { color: #4a4a6a; }
+  .file-upload {
+    margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .file-upload input[type="file"] { display:none; }
+  .file-btn {
+    padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer;
+    background:transparent; border:1px dashed var(--border); color: var(--text2);
+    transition: all 0.2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .file-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .file-name { font-size:12px; color: var(--green); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .file-name.error { color: var(--red); }
+  .input-card.dragover { border-color: var(--accent); box-shadow: 0 0 20px rgba(108,92,231,0.2); }
+
+  /* Buttons */
+  .btn-row { display:flex; gap:12px; justify-content:center; margin-bottom:32px; flex-wrap:wrap; }
+  .btn {
+    padding:12px 32px; border-radius:8px; font-size:15px; font-weight:600;
+    cursor:pointer; border:none; transition: all 0.2s; display:flex; align-items:center; gap:8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #5a4bd1);
+    color:#fff; box-shadow: 0 4px 20px rgba(108,92,231,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(108,92,231,0.4); }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+  .btn-outline { background:transparent; border:1px solid var(--border); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-sm { padding:8px 16px; font-size:13px; }
+
+  /* Progress */
+  .progress {
+    display:none; background: var(--card); border:1px solid var(--border);
+    border-radius: var(--radius); padding:20px 24px; margin-bottom:24px;
+  }
+  .progress.active { display:block; }
+  .progress-steps { display:flex; gap:4px; margin-bottom:12px; }
+  .progress-step {
+    flex:1; height:4px; border-radius:2px; background: var(--border); transition: background 0.3s;
+  }
+  .progress-step.done { background: var(--green); }
+  .progress-step.current { background: var(--accent); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .progress-text { font-size:13px; color: var(--text2); }
+
+  /* Report */
+  .report { display:none; }
+  .report.active { display:block; }
+
+  .report-header {
+    background: linear-gradient(135deg, #1e1e3e 0%, #1a1a30 100%);
+    border:1px solid var(--border); border-radius: var(--radius); padding:24px;
+    margin-bottom:20px; text-align:center;
+  }
+  .score-ring {
+    width:100px; height:100px; border-radius:50%;
+    background: conic-gradient(var(--green) 0deg calc(var(--score-pct) * 3.6deg), #1a1a30 calc(var(--score-pct) * 3.6deg) 360deg);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 12px;
+    position:relative;
+  }
+  .score-ring::after {
+    content:''; width:76px; height:76px; border-radius:50%; background: #1a1a30;
+    position:absolute;
+  }
+  .score-value { position:relative; z-index:1; font-size:28px; font-weight:800; }
+  .score-label { font-size:13px; color: var(--text2); margin-top:4px; }
+  .verdict-tag {
+    display:inline-block; padding:6px 16px; border-radius:20px;
+    font-size:14px; font-weight:600; margin-top:8px;
+  }
+  .verdict-tag.recommend { background: rgba(0,210,160,0.15); color: var(--green); }
+  .verdict-tag.hold { background: rgba(255,192,72,0.15); color: var(--yellow); }
+  .verdict-tag.reject { background: rgba(255,107,107,0.15); color: var(--red); }
+
+  .report-block {
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding:20px 24px; margin-bottom:16px;
+  }
+  .report-block h3 {
+    font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+  }
+  .report-block h4 { font-size:14px; margin:16px 0 8px; color: var(--accent2); }
+
+  /* Tables */
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); color: var(--text2); font-weight:500; font-size:12px; }
+  td { padding:10px 12px; border-bottom:1px solid rgba(42,42,74,0.5); }
+  .badge {
+    display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:600;
+  }
+  .badge.pass { background: rgba(0,210,160,0.15); color: var(--green); }
+  .badge.partial { background: rgba(255,192,72,0.15); color: var(--yellow); }
+  .badge.fail { background: rgba(255,107,107,0.15); color: var(--red); }
+  .match-strong { color: var(--green); font-weight:600; }
+  .match-mid { color: var(--yellow); font-weight:600; }
+  .match-weak { color: var(--red); font-weight:600; }
+  .match-none { color: #666; }
+
+  /* Evidence block */
+  .evidence {
+    background: #0a0a18; border-left:3px solid var(--accent);
+    padding:12px 16px; border-radius:0 8px 8px 0; margin:8px 0;
+    font-size:13px; color: var(--accent2); font-style:italic;
+  }
+
+  /* Interview section */
+  .interview-q {
+    background: #0a0a18; border-radius:8px; padding:16px; margin:12px 0;
+    border:1px solid rgba(42,42,74,0.3);
+  }
+  .interview-q .q-text {
+    font-size:15px; font-weight:500; margin-bottom:8px; color: #fff;
+  }
+  .interview-q .q-logic {
+    font-size:12px; color: var(--text2);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.2);
+    border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite;
+    margin-right:8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Settings modal */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    z-index:100; align-items:center; justify-content:center;
+  }
+  .modal-overlay.active { display:flex; }
+  .modal {
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding:24px; width:90%; max-width:480px;
+  }
+  .modal h3 { margin-bottom:16px; }
+  .modal input {
+    width:100%; padding:10px 14px; background:#0a0a18; border:1px solid var(--border);
+    border-radius:8px; color: var(--text); font-size:14px; margin-bottom:12px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .modal input:focus { outline:none; border-color: var(--accent); }
+  .modal .btn-row { margin-bottom:0; justify-content:flex-end; }
+
+  /* Footer */
+  .footer {
+    text-align:center; padding:32px; color: var(--text2); font-size:12px;
+    border-top:1px solid var(--border); margin-top:48px;
+  }
+  .footer a { color: var(--accent2); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <h1>Talent<span>Match</span></h1>
+    </div>
+    <div class="api-status">
+      <div class="api-dot no" id="apiDot"></div>
+      <span id="apiLabel">未配置API Key</span>
+      <button class="btn btn-outline btn-sm" onclick="openSettings()">⚙️ 设置</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Input -->
+  <div class="input-section">
+    <div class="input-card" id="jdCard">
+      <h3>📋 岗位 JD</h3>
+      <p class="hint">粘贴文本，或上传 Word/PDF/图片 自动解析</p>
+      <textarea id="jdInput" placeholder="【岗位】后端开发工程师-飞书&#10;&#10;【岗位职责】&#10;1. 负责飞书文档核心服务的后端架构设计与开发&#10;2. ...&#10;&#10;【任职要求】&#10;1. 本科及以上学历&#10;2. ..."></textarea>
+      <div class="file-upload">
+        <button class="file-btn" onclick="document.getElementById('jdFile').click()">📎 上传文件</button>
+        <input type="file" id="jdFile" accept=".docx,.pdf,.png,.jpg,.jpeg,.txt,.md" onchange="handleFile('jd')">
+        <span class="file-name" id="jdFileName"></span>
+      </div>
+    </div>
+    <div class="input-card" id="resumeCard">
+      <h3>👤 候选人简历</h3>
+      <p class="hint">粘贴文本，或上传 Word/PDF/图片 自动解析</p>
+      <textarea id="resumeInput" placeholder="【个人信息】&#10;姓名：张驰 | 硕士-复旦大学-计算机&#10;&#10;【工作经历】&#10;腾讯 — 后端开发工程师&#10;..."></textarea>
+      <div class="file-upload">
+        <button class="file-btn" onclick="document.getElementById('resumeFile').click()">📎 上传文件</button>
+        <input type="file" id="resumeFile" accept=".docx,.pdf,.png,.jpg,.jpeg,.txt,.md" onchange="handleFile('resume')">
+        <span class="file-name" id="resumeFileName"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline btn-sm" onclick="loadDemo()">📥 载入测试Demo</button>
+    <button class="btn btn-primary" id="matchBtn" onclick="runMatch()">🚀 开始语义匹配分析</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress" id="progress">
+    <div class="progress-steps">
+      <div class="progress-step" id="step1"></div>
+      <div class="progress-step" id="step2"></div>
+      <div class="progress-step" id="step3"></div>
+      <div class="progress-step" id="step4"></div>
+    </div>
+    <div class="progress-text" id="progressText">准备中...</div>
+  </div>
+
+  <!-- Report -->
+  <div class="report" id="report"></div>
+
+</div>
+
+<div class="footer">
+   TalentMatch · AI语义匹配助手 · 辅助决策而非替代决策 · Powered by DeepSeek
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h3>⚙️ API 设置</h3>
+    <label style="font-size:13px;color:var(--text2);">DeepSeek API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-...">
+    <p style="font-size:11px;color:var(--text2);margin-bottom:16px;">
+      注册获取免费500万token：<a href="https://platform.deepseek.com" target="_blank" style="color:var(--accent2);">platform.deepseek.com</a>
+      <br>Key 仅保存在你的浏览器本地，不会上传到任何服务器。
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-outline btn-sm" onclick="closeSettings()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== API ====================
+const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+function getApiKey() {
+  return localStorage.getItem('tm_api_key') || '';
+}
+
+async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3) {
+  const key = getApiKey();
+  if (!key) throw new Error('请先配置 DeepSeek API Key');
+  const res = await fetch(DEEPSEEK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ],
+      temperature,
+      max_tokens: 4096,
+      response_format: temperature === 0 ? { type: 'json_object' } : undefined
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API 错误 (${res.status})`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+function extractJSON(text) {
+  // Try direct parse
+  try { return JSON.parse(text); } catch(e) {}
+  // Try extract from markdown code block
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (m) {
+    try { return JSON.parse(m[1].trim()); } catch(e) {}
+  }
+  // Try find { ... }
+  const b = text.indexOf('{');
+  const e = text.lastIndexOf('}');
+  if (b >= 0 && e > b) {
+    try { return JSON.parse(text.slice(b, e+1)); } catch(e) {}
+  }
+  throw new Error('无法解析模型输出的JSON');
+}
+
+// ==================== Prompts ====================
+const JD_PROMPT = `你是一位有10年经验的招聘专家，擅长将模糊的岗位JD翻译成可验证的能力指标。
+
+# 任务
+分析用户提供的JD文本，提取以下结构化信息。
+
+# 提取规则
+1. **硬性条件**：学历、工作年限、必备技能/证书——这些是"不满足就淘汰"的条件
+2. **软性能力要求**：把JD中模糊的表述翻译成可验证的行为指标。例如：
+   - JD写"逻辑分析能力强"→ 翻译为"能用数据拆解过复杂问题，有过从现象→根因→解决方案的完整推理过程"
+   - JD写"沟通协作好"→ 翻译为"有过跨团队/跨职能推动项目落地的经验"
+   - JD写"自驱力强"→ 翻译为"在没有明确要求的情况下，主动发起或优化过某些事情"
+3. **加分项**：JD中明确提到但不强制要求的能力
+
+# 输出格式（严格JSON，不要任何其他文字）
+{
+  "position": "岗位名称",
+  "hard_requirements": {
+    "education": "学历要求",
+    "min_years": 数字,
+    "must_skills": ["必备技能1"],
+    "other": []
+  },
+  "soft_requirements": [
+    {"label": "JD原文表述", "behavior_indicator": "翻译后的可验证行为指标", "importance": "高/中"}
+  ],
+  "bonus": ["加分项"]
+}`;
+
+const RESUME_PROMPT = `你是一位擅长解读简历的招聘专家，能从经历的细节中提取能力证据。
+
+# 任务
+分析用户提供的简历文本，提取结构化信息。核心原则：不只记录"写了什么"，更要读懂"做了什么、怎么做的、结果是什么"。
+
+# 提取规则
+1. **基础信息**：姓名、学历、学校、专业
+2. **工作年限**：把实习和正式工作的时间按月累加，输出总年数（数字）
+3. **技能列表**：简历中明确提到的技能、工具、语言
+4. **经历拆解（最重要）**：每段经历拆成：
+   - 背景/上下文
+   - 行为动词（搭建/重构/优化/主导/协同/设计/从0到1/独立负责/发现并解决）
+   - 量化结果
+   - 提炼能力标签（从这段经历中能推断出的能力，必须有原文证据支撑）
+5. **能力证据汇总**：把所有经历中的能力标签汇总到一个对象里，每个标签对应简历中能证明它的原文句子
+
+# 重要原则
+- 不要编造简历中没有的信息
+- 区分"自己主导做的事"和"参与协助的事"
+- 行为动词和量化结果越具体，能力推断越可靠
+
+# 输出格式（严格JSON）
+{
+  "basics": {"name": "姓名", "education": "最高学历", "school": "学校", "major": "专业"},
+  "total_years": 数字,
+  "skills": [],
+  "experiences": [
+    {
+      "company": "公司", "role": "岗位", "duration": "时间",
+      "summary": "一句话概括",
+      "actions": [], "quantified_results": [],
+      "inferred_abilities": [{"ability": "能力标签", "evidence": "原文证据"}]
+    }
+  ],
+  "ability_summary": {"能力标签": ["原文证据句子"]}
+}`;
+
+const MATCH_PROMPT = `你是一位严苛但公正的招聘评估专家。基于证据做匹配判断。
+
+# 输入
+- JD解析结果 + 简历解析结果（两份JSON）
+
+# 评分规则
+
+## 1. 硬性条件核验（满分40分）
+- 学历：简历学历 ≥ JD要求 → 通过；不通过得该项一半分
+- 工作年限：简历年限 ≥ JD要求×0.8 → 通过；不通过得该项一半分
+- 必备技能：简历技能∩JD必备技能 / JD必备技能总数 ≥ 70% → 通过
+- 每条均分40分
+
+## 2. 软性能力语义匹配（满分40分）
+对JD每条软性要求在简历的ability_summary中寻找语义匹配（非关键词匹配）。
+分级：
+- 🟢 强：简历中有直接、明确的行为证据
+- 🟡 中：简历中有间接或部分相关的证据
+- 🟠 弱：有相关但不够有力的暗示
+- 🔴 无：找不到任何证据
+
+## 3. 经验相关度（满分15分）：行业相似度、技术栈重叠、团队角色匹配
+## 4. 成长性（满分5分）：经历密度、成长速度、结果质量、主动性
+
+# 重要原则
+- 每处匹配判断必须引用简历原文作为证据
+- 不要因为学校好就给高分，也不要因为年限不够就低分
+
+# 输出格式（严格JSON）
+{
+  "overall_score": 数字,
+  "score_breakdown": {
+    "hard_match": {
+      "score": 数字, "max": 40,
+      "checks": [{"item": "条件", "jd_requires": "JD要求", "candidate_has": "候选人情况", "passed": true/false, "score": 数字}]
+    },
+    "soft_match": {
+      "score": 数字, "max": 40,
+      "items": [{"jd_requirement": "JD原文", "match_level": "强/中/弱/无", "evidence": "简历原文证据", "explanation": "判断理由"}]
+    },
+    "relevance": {"score": 数字, "max": 15, "detail": "说明"},
+    "growth": {"score": 数字, "max": 5, "detail": "说明"}
+  },
+  "verdict": "推荐面试 / 暂不匹配 / 信息不足",
+  "verdict_reason": "一句话总结"
+}`;
+
+const INTERVIEW_PROMPT = `你是一位资深面试官，擅长设计能区分"真做过"和"见过别人做"的结构化追问。
+
+# 任务
+基于匹配评估结果，为面试官设计一组可以立刻使用的追问。
+
+# 追问设计原则
+
+## 原则1：STAR追问法
+不要问"你会怎么做"，要问"你当时是怎么做的"
+
+## 原则2：验证真实性
+- 追问细节：用了什么工具？遇到什么困难？怎么解决的？
+- 追问深度：如果再做一次，你会怎么改进？
+- 追问独立性：你主导的还是参与的？
+
+## 原则3：针对"风险项"和"亮点"分别设计
+- 风险项 → 验证/排除
+- 亮点 → 确认深度
+
+# 输出格式（Markdown，非JSON）
+## 🎯 面试追问指南
+
+### ⚠️ 需要验证的风险项
+**风险1：[名称]**
+> [追问——口语化，面试官可以直接念]
+> 💡 追问逻辑：[为什么这么问]
+
+### ✅ 需要确认深度的亮点
+**亮点1：[名称]**
+> [追问——口语化]
+> 💡 追问逻辑：[为什么这么问]`;
+
+// ==================== Core Logic ====================
+async function runMatch() {
+  const jd = document.getElementById('jdInput').value.trim();
+  const resume = document.getElementById('resumeInput').value.trim();
+  if (!jd || !resume) { alert('请先粘贴 JD 和简历文本'); return; }
+  if (!getApiKey()) { openSettings(); alert('请先配置 DeepSeek API Key'); return; }
+
+  const btn = document.getElementById('matchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>分析中...';
+  document.getElementById('report').classList.remove('active');
+  document.getElementById('report').innerHTML = '';
+  document.getElementById('progress').classList.add('active');
+
+  try {
+    // Step 1: Parse JD
+    updateProgress(0, '正在解析JD结构...');
+    const jdRaw = await callDeepSeek(JD_PROMPT, jd, 0.1);
+    const jdParsed = extractJSON(jdRaw);
+    console.log('JD解析:', jdParsed);
+
+    // Step 2: Parse Resume
+    updateProgress(1, '正在解析简历结构...');
+    const resumeRaw = await callDeepSeek(RESUME_PROMPT, resume, 0.1);
+    const resumeParsed = extractJSON(resumeRaw);
+    console.log('简历解析:', resumeParsed);
+
+    // Step 3: Match
+    updateProgress(2, '正在进行语义对比...');
+    const matchInput = `【JD解析结果】\n${JSON.stringify(jdParsed, null, 2)}\n\n【简历解析结果】\n${JSON.stringify(resumeParsed, null, 2)}`;
+    const matchRaw = await callDeepSeek(MATCH_PROMPT, matchInput, 0.2);
+    const matchResult = extractJSON(matchRaw);
+    console.log('匹配结果:', matchResult);
+
+    // Step 4: Interview Guide
+    updateProgress(3, '正在生成面试追问...');
+    const interviewRaw = await callDeepSeek(INTERVIEW_PROMPT, JSON.stringify(matchResult, null, 2), 0.5);
+    console.log('面试追问:', interviewRaw);
+
+    updateProgress(4, '✅ 分析完成');
+    setTimeout(() => {
+      document.getElementById('progress').classList.remove('active');
+      renderReport(jdParsed, resumeParsed, matchResult, interviewRaw);
+    }, 500);
+
+  } catch(err) {
+    alert('分析出错: ' + err.message);
+    console.error(err);
+    document.getElementById('progress').classList.remove('active');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 开始语义匹配分析';
+  }
+}
+
+function updateProgress(stepNum, text) {
+  document.getElementById('progressText').textContent = text;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('step' + (i+1));
+    el.classList.remove('done', 'current');
+    if (i < stepNum) el.classList.add('done');
+    else if (i === stepNum) el.classList.add('current');
+  }
+}
+
+// ==================== Report Render ====================
+function renderReport(jd, resume, match, interview) {
+  const sb = match.score_breakdown;
+  const score = match.overall_score;
+  const verdict = match.verdict;
+  const verdictClass = verdict.includes('推荐') ? 'recommend' : verdict.includes('不匹配') ? 'reject' : 'hold';
+
+  let html = '';
+
+  // Header
+  html += `<div class="report-header">
+    <div class="score-ring" style="--score-pct:${score}">
+      <div class="score-value" style="color:${score>=70?'var(--green)':score>=50?'var(--yellow)':'var(--red)'}">${score}</div>
+    </div>
+    <div style="font-size:20px;font-weight:700;">${resume.basics.name || '候选人'} — ${jd.position || '应聘岗位'}</div>
+    <div class="verdict-tag ${verdictClass}">${verdict}</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:8px;">${match.verdict_reason || ''}</div>
+  </div>`;
+
+  // Hard Match
+  html += `<div class="report-block"><h3>1️⃣ 硬性条件核验 <span style="font-size:13px;color:var(--text2);font-weight:400;">${sb.hard_match.score}/${sb.hard_match.max}分</span></h3>`;
+  html += `<table><thead><tr><th>条件</th><th>JD要求</th><th>候选人情况</th><th>结果</th></tr></thead><tbody>`;
+  for (const c of sb.hard_match.checks || []) {
+    const badge = c.passed ? '<span class="badge pass">✅ 通过</span>' : '<span class="badge partial">⚠️ 不满足</span>';
+    html += `<tr><td>${c.item}</td><td>${c.jd_requires}</td><td>${c.candidate_has}</td><td>${badge}</td></tr>`;
+  }
+  html += `</tbody></table></div>`;
+
+  // Soft Match
+  html += `<div class="report-block"><h3>2️⃣ 能力语义匹配 <span style="font-size:13px;color:var(--text2);font-weight:400;">${sb.soft_match.score}/${sb.soft_match.max}分</span></h3>`;
+  html += `<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">💡 这是TalentMatch的核心差异——不是匹配关键词，而是理解"做了什么"背后的"能力是什么"</p>`;
+  for (const item of sb.soft_match.items || []) {
+    const lvlClass = item.match_level === '强' ? 'match-strong' : item.match_level === '中' ? 'match-mid' : item.match_level === '弱' ? 'match-weak' : 'match-none';
+    html += `<div style="margin-bottom:16px;">
+      <div style="font-weight:600;margin-bottom:4px;">${item.jd_requirement}</div>
+      <div>匹配强度：<span class="${lvlClass}">🟢 ${item.match_level}</span></div>`;
+    if (item.evidence) {
+      html += `<div class="evidence">📌 证据：${item.evidence}</div>`;
+    }
+    if (item.explanation) {
+      html += `<div style="font-size:13px;color:var(--text2);">${item.explanation}</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  // Relevance + Growth
+  html += `<div class="report-block"><h3>3️⃣ 综合评估</h3>`;
+  html += `<table><tbody>
+    <tr><td style="width:120px;">经验相关度</td><td><strong>${sb.relevance?.score || '-'}/${sb.relevance?.max || 15}分</strong></td><td style="color:var(--text2);">${sb.relevance?.detail || ''}</td></tr>
+    <tr><td>成长性与潜力</td><td><strong>${sb.growth?.score || '-'}/${sb.growth?.max || 5}分</strong></td><td style="color:var(--text2);">${sb.growth?.detail || ''}</td></tr>
+  </tbody></table></div>`;
+
+  // Interview Guide
+  if (interview) {
+    html += `<div class="report-block"><h3>4️⃣ 面试追问指南</h3>`;
+    // Parse interview markdown (simple renderer)
+    const cleanInterview = interview.replace(/```[^]*?```/g, '');
+    const sections = cleanInterview.split(/(?=### [⚠✅])/);
+    for (const sec of sections) {
+      if (!sec.trim()) continue;
+      let secHtml = sec
+        .replace(/### (.*)/g, '<h4>$1</h4>')
+        .replace(/\*\*风险\d+[：:]\s*(.*?)\*\*/g, '<div style="font-weight:700;color:var(--red);margin-top:12px;">⚠️ $1</div>')
+        .replace(/\*\*亮点\d+[：:]\s*(.*?)\*\*/g, '<div style="font-weight:700;color:var(--green);margin-top:12px;">✅ $1</div>')
+        .replace(/^>\s*(.*?)$/gm, '<div class="interview-q"><div class="q-text">$1</div>')
+        .replace(/^💡\s*\*\*追问逻辑[：:]\*\*\s*(.*?)$/gm, '<div class="q-logic">💡 $1</div></div>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html += secHtml;
+    }
+    html += `</div>`;
+  }
+
+  // Footer note
+  html += `<div class="report-block" style="text-align:center;font-size:12px;color:var(--text2);">
+    📋 本报告由 <strong>TalentMatch</strong> AI 自动生成 · 辅助招聘决策 · 最终判断请结合面试实际表现
+  </div>`;
+
+  document.getElementById('report').innerHTML = html;
+  document.getElementById('report').classList.add('active');
+  document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== Settings ====================
+function openSettings() {
+  document.getElementById('apiKeyInput').value = getApiKey();
+  document.getElementById('settingsModal').classList.add('active');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('active');
+}
+function saveSettings() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (key) {
+    localStorage.setItem('tm_api_key', key);
+    updateApiStatus();
+    closeSettings();
+  }
+}
+function updateApiStatus() {
+  const key = getApiKey();
+  document.getElementById('apiDot').className = 'api-dot ' + (key ? 'ok' : 'no');
+  document.getElementById('apiLabel').textContent = key ? 'DeepSeek API 已就绪' : '未配置API Key';
+}
+
+// ==================== Demo Data ====================
+function loadDemo() {
+  document.getElementById('jdInput').value = `【岗位】后端开发工程师-飞书
+
+【岗位职责】
+1. 负责飞书文档核心服务的后端架构设计与开发
+2. 参与高并发场景下的系统性能优化，保障服务稳定性
+3. 与产品、前端团队协作，推动复杂业务需求的落地
+4. 参与技术方案的评审与技术难点的攻坚
+
+【任职要求】
+1. 本科及以上学历，计算机相关专业优先
+2. 3年以上后端开发经验
+3. 精通Java，熟练掌握SpringBoot、MySQL、Redis等主流技术栈
+4. 熟悉分布式系统设计，有高并发场景实战经验
+5. 具备良好的系统设计能力和问题抽象能力
+6. 自驱力强，有技术热情
+7. 有复杂业务系统的架构经验优先`;
+
+  document.getElementById('resumeInput').value = `【个人信息】
+姓名：张驰 | 硕士-复旦大学-计算机专业 | 2年工作经验
+
+【工作经历】
+
+腾讯 — 后端开发工程师（2024.03-至今）
+- 负责部门内部运营支撑系统的后端开发
+- 原有的订单处理模块在高并发场景下频繁超时，我自己发起了一次重构，把原来的单体逻辑拆成了异步消息队列架构，重构后QPS从200提升到1200
+- 搭建了一套数据看板体系，帮业务方从"拍脑袋做决策"变成了"看数据做决策"，月活数据查询量5000+
+
+美团 — 后端开发实习生（2023.06-2024.01）
+- 参与商家端核心服务的需求开发，负责优惠券发放模块
+- 发现发放逻辑有并发安全问题，加了分布式锁，消除了超发风险
+- 独立负责了一个小项目：商家资质审核流程的自动化改造，把审核周期从3天缩短到4小时
+
+【技能】
+Java, SpringBoot, MySQL, Redis, Kafka, Docker, Python（基础）
+
+【项目经历】
+- 开源项目：给一个Java工具库提交过5个PR，被merge了3个
+- 毕业论文：基于深度学习的代码评审自动化（用Python+PyTorch实现）`;
+}
+
+// ==================== Init ====================
+updateApiStatus();
+if (!getApiKey()) {
+  openSettings();
+}
+
+// ==================== File Upload & Parse ====================
+// Dynamically load external libraries
+let libsLoaded = { jszip: false, pdfjs: false, tesseract: false };
+
+function loadJSZip() {
+  return new Promise((resolve, reject) => {
+    if (libsLoaded.jszip) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = () => { libsLoaded.jszip = true; resolve(); };
+    s.onerror = () => reject(new Error('JSZip 加载失败，请检查网络'));
+    document.head.appendChild(s);
+  });
+}
+
+function loadPDFJS() {
+  return new Promise((resolve, reject) => {
+    if (libsLoaded.pdfjs) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      libsLoaded.pdfjs = true;
+      resolve();
+    };
+    s.onerror = () => reject(new Error('PDF.js 加载失败，请检查网络'));
+    document.head.appendChild(s);
+  });
+}
+
+async function handleFile(which) {
+  const fileInput = document.getElementById(which === 'jd' ? 'jdFile' : 'resumeFile');
+  const fileNameEl = document.getElementById(which === 'jd' ? 'jdFileName' : 'resumeFileName');
+  const textarea = document.getElementById(which === 'jd' ? 'jdInput' : 'resumeInput');
+  const card = document.getElementById(which === 'jd' ? 'jdCard' : 'resumeCard');
+
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  fileNameEl.textContent = `⏳ 解析中: ${file.name}`;
+  fileNameEl.className = 'file-name';
+  card.style.opacity = '0.7';
+
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    let text = '';
+
+    if (ext === 'txt' || ext === 'md') {
+      text = await file.text();
+    } else if (ext === 'docx') {
+      text = await parseDOCX(file);
+    } else if (ext === 'pdf') {
+      text = await parsePDF(file);
+    } else if (['png', 'jpg', 'jpeg'].includes(ext)) {
+      text = await parseImage(file);
+    } else {
+      throw new Error(`不支持的文件格式: .${ext}`);
+    }
+
+    if (!text || text.trim().length < 10) {
+      throw new Error('文件内容为空或解析失败');
+    }
+
+    textarea.value = text;
+    fileNameEl.textContent = `✅ ${file.name} (${text.length}字)`;
+    fileNameEl.className = 'file-name';
+  } catch(err) {
+    fileNameEl.textContent = `❌ ${err.message}`;
+    fileNameEl.className = 'file-name error';
+  } finally {
+    card.style.opacity = '1';
+    fileInput.value = '';
+  }
+}
+
+async function parseDOCX(file) {
+  await loadJSZip();
+  const zip = await JSZip.loadAsync(file);
+  const docXml = await zip.file('word/document.xml')?.async('string');
+  if (!docXml) throw new Error('无法读取docx文件内容');
+
+  // Strip XML tags, decode entities
+  let text = docXml
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (m, d) => String.fromCharCode(d))
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Try to structure: split on paragraph markers
+  const paragraphs = docXml.split(/<\/w:p>/);
+  const lines = [];
+  for (const p of paragraphs) {
+    const t = p.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (t) lines.push(t);
+  }
+
+  return lines.length > 0 ? lines.join('\n') : text;
+}
+
+async function parsePDF(file) {
+  await loadPDFJS();
+  const arrayBuf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    pages.push(pageText);
+  }
+  return pages.join('\n').replace(/\s+/g, ' ').trim();
+}
+
+async function parseImage(file) {
+  // For images: use Tesseract.js for OCR (loaded on demand)
+  return new Promise((resolve, reject) => {
+    if (!libsLoaded.tesseract) {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      s.onload = () => { libsLoaded.tesseract = true; doOCR(); };
+      s.onerror = () => reject(new Error('OCR引擎加载失败'));
+      document.head.appendChild(s);
+    } else {
+      doOCR();
+    }
+
+    async function doOCR() {
+      try {
+        const imgUrl = URL.createObjectURL(file);
+        const result = await Tesseract.recognize(imgUrl, 'chi_sim+eng', {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              const pct = Math.round(m.progress * 100);
+              // Update filename with progress
+              const el = document.querySelector(`[id$="FileName"]`);
+              if (el) el.textContent = `⏳ OCR识别中 ${pct}%...`;
+            }
+          }
+        });
+        URL.revokeObjectURL(imgUrl);
+        resolve(result.data.text.trim());
+      } catch(e) {
+        reject(new Error('图片OCR识别失败: ' + e.message));
+      }
+    }
+  });
+}
+
+// Drag and drop support
+document.querySelectorAll('.input-card').forEach(card => {
+  card.addEventListener('dragover', e => {
+    e.preventDefault();
+    card.classList.add('dragover');
+  });
+  card.addEventListener('dragleave', () => {
+    card.classList.remove('dragover');
+  });
+  card.addEventListener('drop', async e => {
+    e.preventDefault();
+    card.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    // Determine which target
+    const which = card.id === 'jdCard' ? 'jd' : 'resume';
+    const fileInput = document.getElementById(which === 'jd' ? 'jdFile' : 'resumeFile');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+
+    // Trigger parse
+    await handleFile(which);
+  });
+});
+</script>
+</body>
+</html>
