@@ -303,10 +303,11 @@
   <div class="modal">
     <h3>⚙️ API 设置</h3>
     <label style="font-size:13px;color:var(--text2);">DeepSeek API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-...">
+    <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+    <p id="savedHint" style="display:none;font-size:12px;color:var(--green);margin-bottom:4px;"></p>
     <p style="font-size:11px;color:var(--text2);margin-bottom:16px;">
       注册获取免费500万token：<a href="https://platform.deepseek.com" target="_blank" style="color:var(--accent2);">platform.deepseek.com</a>
-      <br>Key 仅保存在你的浏览器本地，不会上传到任何服务器。
+      <br>🔐 Key 仅保存在此浏览器本地，不经过任何服务器。输入一次，永久有效。
     </p>
     <div class="btn-row">
       <button class="btn btn-outline btn-sm" onclick="closeSettings()">取消</button>
@@ -663,7 +664,17 @@ function renderReport(jd, resume, match, interview) {
 
 // ==================== Settings ====================
 function openSettings() {
-  document.getElementById('apiKeyInput').value = getApiKey();
+  const saved = getApiKey();
+  document.getElementById('apiKeyInput').value = saved;
+  // 如果有已保存的 Key，显示提示
+  const hintEl = document.getElementById('savedHint');
+  if (saved) {
+    const masked = saved.slice(0, 5) + '****' + saved.slice(-4);
+    hintEl.textContent = '🔑 已保存: ' + masked + '（在此浏览器永久有效）';
+    hintEl.style.display = 'block';
+  } else {
+    hintEl.style.display = 'none';
+  }
   document.getElementById('settingsModal').classList.add('active');
 }
 function closeSettings() {
@@ -673,14 +684,57 @@ function saveSettings() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
     localStorage.setItem('tm_api_key', key);
+    // Cookie 备份（兼容部分浏览器 localStorage 被清理的情况）
+    try { document.cookie = `tm_api_key=${encodeURIComponent(key)}; max-age=31536000; path=/; SameSite=Lax`; } catch(e) {}
     updateApiStatus();
     closeSettings();
+    showToast('✅ API Key 已保存，下次访问无需重新输入');
   }
+}
+function getApiKey() {
+  // localStorage 优先，Cookie 兜底
+  let key = '';
+  try { key = localStorage.getItem('tm_api_key') || ''; } catch(e) {}
+  if (!key) {
+    const m = document.cookie.match(/(?:^|;\s*)tm_api_key=([^;]*)/);
+    if (m) {
+      key = decodeURIComponent(m[1]);
+      // 回写到 localStorage
+      try { localStorage.setItem('tm_api_key', key); } catch(e) {}
+    }
+  }
+  return key;
 }
 function updateApiStatus() {
   const key = getApiKey();
-  document.getElementById('apiDot').className = 'api-dot ' + (key ? 'ok' : 'no');
-  document.getElementById('apiLabel').textContent = key ? 'DeepSeek API 已就绪' : '未配置API Key';
+  const dot = document.getElementById('apiDot');
+  const label = document.getElementById('apiLabel');
+  dot.className = 'api-dot ' + (key ? 'ok' : 'no');
+  if (key) {
+    const masked = key.slice(0, 5) + '****' + key.slice(-4);
+    label.textContent = 'API 已就绪 (' + masked + ')';
+  } else {
+    label.textContent = '未配置 API Key';
+  }
+}
+
+// Toast notification
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+      background:var(--green); color:#000; padding:12px 24px; border-radius:8px;
+      font-size:14px; font-weight:600; z-index:999; opacity:0; transition:opacity 0.3s;
+      pointer-events:none;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 2500);
 }
 
 // ==================== Demo Data ====================
