@@ -54,11 +54,32 @@
   .api-dot.ok { background: var(--green); }
   .api-dot.no { background: var(--red); }
 
+  /* Tab Navigation */
+  .tab-nav {
+    display: flex; gap: 4px; max-width: 1200px; margin: 0 auto; padding: 20px 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    padding: 10px 24px; border: none; background: transparent;
+    color: var(--text2); font-size: 14px; font-weight: 500; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .tab-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(108,92,231,0.2); color: var(--accent2);
+  }
+
   /* Main */
   .main { max-width: 1200px; margin:0 auto; padding:32px 24px; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
 
   /* Input Section */
   .input-section { display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px; }
+  .input-section.single-col { grid-template-columns: 1fr; max-width: 800px; }
   @media (max-width:768px) { .input-section { grid-template-columns: 1fr; } }
 
   .input-card {
@@ -107,6 +128,8 @@
   .btn-outline { background:transparent; border:1px solid var(--border); color: var(--text2); }
   .btn-outline:hover { border-color: var(--accent2); color: var(--text); }
   .btn-sm { padding:8px 16px; font-size:13px; }
+  .btn-danger { background:transparent; border:1px solid rgba(255,107,107,0.3); color: var(--red); }
+  .btn-danger:hover { border-color: var(--red); background: rgba(255,107,107,0.1); }
 
   /* Progress */
   .progress {
@@ -144,7 +167,6 @@
     position:absolute;
   }
   .score-value { position:relative; z-index:1; font-size:28px; font-weight:800; }
-  .score-label { font-size:13px; color: var(--text2); margin-top:4px; }
   .verdict-tag {
     display:inline-block; padding:6px 16px; border-radius:20px;
     font-size:14px; font-weight:600; margin-top:8px;
@@ -204,6 +226,41 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Batch ranking table */
+  .ranking-table { margin-bottom:24px; }
+  .ranking-table th { cursor:pointer; user-select:none; }
+  .ranking-table th:hover { color: var(--text); }
+  .ranking-table tr.rank-row { cursor:pointer; transition: background 0.15s; }
+  .ranking-table tr.rank-row:hover { background: rgba(108,92,231,0.08); }
+  .ranking-table tr.rank-row.expanded { background: rgba(108,92,231,0.12); }
+  .rank-num { font-size:18px; font-weight:800; }
+  .rank-1 { color: #ffd700; }
+  .rank-2 { color: #c0c0c0; }
+  .rank-3 { color: #cd7f32; }
+  .detail-row { display:none; }
+  .detail-row.open { display:table-row; }
+  .detail-row td { padding:0; border-bottom:2px solid var(--accent); }
+  .detail-panel { padding:20px 24px; background: #101025; }
+
+  /* Collapse animation */
+  .collapse-toggle { font-size:12px; color: var(--accent2); cursor:pointer; }
+  .collapse-toggle:hover { text-decoration:underline; }
+
+  /* Funnel input table */
+  .funnel-table input {
+    width:100%; padding:6px 8px; background:#0a0a18; border:1px solid var(--border);
+    border-radius:4px; color: var(--text); font-size:13px; text-align:center;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .funnel-table input:focus { outline:none; border-color: var(--accent); }
+  .funnel-table .auto-calc { color: var(--text2); font-size:12px; text-align:center; }
+  .funnel-add-btn {
+    padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer;
+    background:transparent; border:1px dashed var(--border); color: var(--text2);
+    transition: all 0.2s;
+  }
+  .funnel-add-btn:hover { border-color: var(--accent2); color: var(--text); }
+
   /* Settings modal */
   .modal-overlay {
     display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
@@ -222,6 +279,34 @@
   }
   .modal input:focus { outline:none; border-color: var(--accent); }
   .modal .btn-row { margin-bottom:0; justify-content:flex-end; }
+
+  /* Funnel diagnostic */
+  .funnel-insight {
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px; margin: 12px 0;
+    border-radius: 0 8px 8px 0;
+    background: #0a0a18;
+  }
+  .funnel-insight.critical { border-left-color: var(--red); }
+  .funnel-insight.warning { border-left-color: var(--yellow); }
+  .funnel-insight.good { border-left-color: var(--green); }
+  .funnel-chart {
+    display: flex; align-items: flex-end; gap: 16px;
+    height: 180px; padding: 16px 0; margin: 16px 0;
+    border-bottom: 2px solid var(--border);
+  }
+  .funnel-bar-group {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    position:relative;
+  }
+  .funnel-bar {
+    width: 100%; max-width: 120px; border-radius: 6px 6px 0 0;
+    transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative; cursor: pointer;
+  }
+  .funnel-bar:hover { filter: brightness(1.3); }
+  .funnel-bar-label { font-size: 11px; color: var(--text2); text-align: center; }
+  .funnel-bar-val { font-size: 12px; font-weight: 700; }
 
   /* Footer */
   .footer {
@@ -247,14 +332,29 @@
   </div>
 </div>
 
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('single')" id="tabSingle">
+    📋 单份匹配 <span class="tab-badge">深度分析</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('batch')" id="tabBatch">
+    📊 批量对比 <span class="tab-badge">排行榜</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('funnel')" id="tabFunnel">
+    📈 漏斗诊断 <span class="tab-badge">新</span>
+  </button>
+</div>
+
 <div class="main">
 
-  <!-- Input -->
+<!-- ==================== TAB 1: 单份匹配 ==================== -->
+<div class="tab-panel active" id="panelSingle">
+
   <div class="input-section">
     <div class="input-card" id="jdCard">
       <h3>📋 岗位 JD</h3>
       <p class="hint">粘贴文本，或上传 Word/PDF/图片 自动解析</p>
-      <textarea id="jdInput" placeholder="【岗位】后端开发工程师-飞书&#10;&#10;【岗位职责】&#10;1. 负责飞书文档核心服务的后端架构设计与开发&#10;2. ...&#10;&#10;【任职要求】&#10;1. 本科及以上学历&#10;2. ..."></textarea>
+      <textarea id="jdInput" placeholder="【岗位】后端开发工程师&#10;&#10;【岗位职责】&#10;1. ...&#10;&#10;【任职要求】&#10;1. ..."></textarea>
       <div class="file-upload">
         <button class="file-btn" onclick="document.getElementById('jdFile').click()">📎 上传文件</button>
         <input type="file" id="jdFile" accept=".docx,.pdf,.png,.jpg,.jpeg,.txt,.md" onchange="handleFile('jd')">
@@ -264,7 +364,7 @@
     <div class="input-card" id="resumeCard">
       <h3>👤 候选人简历</h3>
       <p class="hint">粘贴文本，或上传 Word/PDF/图片 自动解析</p>
-      <textarea id="resumeInput" placeholder="【个人信息】&#10;姓名：张驰 | 硕士-复旦大学-计算机&#10;&#10;【工作经历】&#10;腾讯 — 后端开发工程师&#10;..."></textarea>
+      <textarea id="resumeInput" placeholder="【个人信息】&#10;姓名：张驰 | 硕士-复旦大学-计算机&#10;&#10;【工作经历】&#10;..."></textarea>
       <div class="file-upload">
         <button class="file-btn" onclick="document.getElementById('resumeFile').click()">📎 上传文件</button>
         <input type="file" id="resumeFile" accept=".docx,.pdf,.png,.jpg,.jpeg,.txt,.md" onchange="handleFile('resume')">
@@ -274,11 +374,10 @@
   </div>
 
   <div class="btn-row">
-    <button class="btn btn-outline btn-sm" onclick="loadDemo()">📥 载入测试Demo</button>
+    <button class="btn btn-outline btn-sm" onclick="loadSingleDemo()">📥 载入测试Demo</button>
     <button class="btn btn-primary" id="matchBtn" onclick="runMatch()">🚀 开始语义匹配分析</button>
   </div>
 
-  <!-- Progress -->
   <div class="progress" id="progress">
     <div class="progress-steps">
       <div class="progress-step" id="step1"></div>
@@ -289,13 +388,99 @@
     <div class="progress-text" id="progressText">准备中...</div>
   </div>
 
-  <!-- Report -->
   <div class="report" id="report"></div>
-
 </div>
 
+<!-- ==================== TAB 2: 批量对比 ==================== -->
+<div class="tab-panel" id="panelBatch">
+
+  <div class="input-section single-col">
+    <div class="input-card">
+      <h3>📋 岗位 JD（一份）</h3>
+      <p class="hint">所有简历将与此 JD 逐一对比</p>
+      <textarea id="batchJdInput" placeholder="粘贴岗位JD..." style="min-height:160px;"></textarea>
+      <div class="file-upload">
+        <button class="file-btn" onclick="document.getElementById('batchJdFile').click()">📎 上传文件</button>
+        <input type="file" id="batchJdFile" accept=".docx,.pdf,.png,.jpg,.jpeg,.txt,.md" onchange="handleFileBatch('jd')">
+        <span class="file-name" id="batchJdFileName"></span>
+      </div>
+    </div>
+    <div class="input-card">
+      <h3>👥 候选人简历（多份，用 --- 分隔）</h3>
+      <p class="hint">每人一份简历文本，用独占一行的 <code>---</code> 作为分隔符。第一行识别为姓名。</p>
+      <textarea id="batchResumeInput" placeholder="张驰&#10;硕士-复旦大学-计算机 | 2年工作经验&#10;腾讯 — 后端开发工程师...&#10;---&#10;李明&#10;本科-上海交大-软件工程 | 5年工作经验&#10;字节跳动 — 高级后端...&#10;---&#10;王芳&#10;硕士-浙江大学-计算机 | 3年工作经验&#10;阿里 — Java开发工程师..." style="min-height:300px;"></textarea>
+      <div class="file-upload">
+        <button class="file-btn" onclick="document.getElementById('batchResumeFile').click()">📎 上传文件</button>
+        <input type="file" id="batchResumeFile" accept=".docx,.pdf,.txt,.md" onchange="handleFileBatch('resume')">
+        <span class="file-name" id="batchResumeFileName"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline btn-sm" onclick="loadBatchDemo()">📥 载入测试Demo（5份简历）</button>
+    <button class="btn btn-primary" id="batchBtn" onclick="runBatch()">📊 开始批量对比</button>
+  </div>
+
+  <div class="progress" id="batchProgress">
+    <div class="progress-text" id="batchProgressText">准备中...</div>
+    <div class="progress-steps">
+      <div class="progress-step" id="batchBar"></div>
+    </div>
+  </div>
+
+  <div class="report" id="batchReport"></div>
+</div>
+
+<!-- ==================== TAB 3: 漏斗诊断 ==================== -->
+<div class="tab-panel" id="panelFunnel">
+
+  <div class="input-section single-col">
+    <div class="input-card">
+      <h3>📊 招聘漏斗数据</h3>
+      <p class="hint">输入每个招聘环节的进入人数和通过人数，转化率自动计算。可添加/删除环节。</p>
+      <div style="overflow-x:auto;">
+        <table class="funnel-table">
+          <thead>
+            <tr>
+              <th style="width:28%;">环节名称</th>
+              <th style="width:22%;">进入人数</th>
+              <th style="width:22%;">通过人数</th>
+              <th style="width:18%;">转化率</th>
+              <th style="width:10%;"></th>
+            </tr>
+          </thead>
+          <tbody id="funnelTbody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+        <button class="funnel-add-btn" onclick="addFunnelRow()">+ 添加环节</button>
+        <span style="font-size:11px;color:var(--text2);">默认环节已填充常见招聘流程，可直接修改</span>
+      </div>
+    </div>
+    <div class="input-card">
+      <h3>📝 补充信息（可选）</h3>
+      <p class="hint">补充岗位类型、行业、招聘渠道等信息，帮助AI更准确地诊断。</p>
+      <textarea id="funnelContext" placeholder="例如：互联网行业后端开发岗，主要通过BOSS直聘和拉勾网招聘，薪资范围15-25K..." style="min-height:80px;"></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline btn-sm" onclick="loadFunnelDemo()">📥 载入示例数据</button>
+    <button class="btn btn-primary" id="funnelBtn" onclick="runFunnel()">🔍 开始诊断</button>
+  </div>
+
+  <div class="progress" id="funnelProgress">
+    <div class="progress-text" id="funnelProgressText">正在分析漏斗数据...</div>
+  </div>
+
+  <div class="report" id="funnelReport"></div>
+</div>
+
+</div><!-- .main -->
+
 <div class="footer">
-   TalentMatch · AI语义匹配助手 · 辅助决策而非替代决策 · Powered by DeepSeek
+  TalentMatch · AI招聘全链路工具集 · 辅助决策而非替代决策 · Powered by DeepSeek
 </div>
 
 <!-- Settings Modal -->
@@ -317,32 +502,57 @@
 </div>
 
 <script>
+// ==================== Tab Switching ====================
+let currentTab = 'single';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  // 切换时更新 demo 按钮数据
+  if (tab === 'funnel') ensureFunnelRows();
+}
+
 // ==================== API ====================
 const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 function getApiKey() {
-  return localStorage.getItem('tm_api_key') || '';
+  let key = '';
+  try { key = localStorage.getItem('tm_api_key') || ''; } catch(e) {}
+  if (!key) {
+    const m = document.cookie.match(/(?:^|;\s*)tm_api_key=([^;]*)/);
+    if (m) {
+      key = decodeURIComponent(m[1]);
+      try { localStorage.setItem('tm_api_key', key); } catch(e) {}
+    }
+  }
+  return key;
 }
 
-async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3) {
+async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3, jsonMode = false) {
   const key = getApiKey();
   if (!key) throw new Error('请先配置 DeepSeek API Key');
+  const body = {
+    model: 'deepseek-chat',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userMessage }
+    ],
+    temperature,
+    max_tokens: 4096
+  };
+  if (jsonMode || temperature === 0) {
+    body.response_format = { type: 'json_object' };
+  }
   const res = await fetch(DEEPSEEK_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${key}`
     },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage }
-      ],
-      temperature,
-      max_tokens: 4096,
-      response_format: temperature === 0 ? { type: 'json_object' } : undefined
-    })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -353,19 +563,12 @@ async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3) {
 }
 
 function extractJSON(text) {
-  // Try direct parse
   try { return JSON.parse(text); } catch(e) {}
-  // Try extract from markdown code block
   const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (m) {
-    try { return JSON.parse(m[1].trim()); } catch(e) {}
-  }
-  // Try find { ... }
+  if (m) { try { return JSON.parse(m[1].trim()); } catch(e) {} }
   const b = text.indexOf('{');
   const e = text.lastIndexOf('}');
-  if (b >= 0 && e > b) {
-    try { return JSON.parse(text.slice(b, e+1)); } catch(e) {}
-  }
+  if (b >= 0 && e > b) { try { return JSON.parse(text.slice(b, e+1)); } catch(e) {} }
   throw new Error('无法解析模型输出的JSON');
 }
 
@@ -376,9 +579,9 @@ const JD_PROMPT = `你是一位有10年经验的招聘专家，擅长将模糊�
 分析用户提供的JD文本，提取以下结构化信息。
 
 # 提取规则
-1. **硬性条件**：学历、工作年限、必备技能/证书——这些是"不满足就淘汰"的条件
+1. **硬性条件**：学历、工作年限、必备技能/证书
 2. **软性能力要求**：把JD中模糊的表述翻译成可验证的行为指标。例如：
-   - JD写"逻辑分析能力强"→ 翻译为"能用数据拆解过复杂问题，有过从现象→根因→解决方案的完整推理过程"
+   - JD写"逻辑分析能力强"→ 翻译为"能用数据拆解过复杂问题"
    - JD写"沟通协作好"→ 翻译为"有过跨团队/跨职能推动项目落地的经验"
    - JD写"自驱力强"→ 翻译为"在没有明确要求的情况下，主动发起或优化过某些事情"
 3. **加分项**：JD中明确提到但不强制要求的能力
@@ -401,23 +604,18 @@ const JD_PROMPT = `你是一位有10年经验的招聘专家，擅长将模糊�
 const RESUME_PROMPT = `你是一位擅长解读简历的招聘专家，能从经历的细节中提取能力证据。
 
 # 任务
-分析用户提供的简历文本，提取结构化信息。核心原则：不只记录"写了什么"，更要读懂"做了什么、怎么做的、结果是什么"。
+分析用户提供的简历文本，提取结构化信息。
 
 # 提取规则
 1. **基础信息**：姓名、学历、学校、专业
 2. **工作年限**：把实习和正式工作的时间按月累加，输出总年数（数字）
 3. **技能列表**：简历中明确提到的技能、工具、语言
-4. **经历拆解（最重要）**：每段经历拆成：
-   - 背景/上下文
-   - 行为动词（搭建/重构/优化/主导/协同/设计/从0到1/独立负责/发现并解决）
-   - 量化结果
-   - 提炼能力标签（从这段经历中能推断出的能力，必须有原文证据支撑）
-5. **能力证据汇总**：把所有经历中的能力标签汇总到一个对象里，每个标签对应简历中能证明它的原文句子
+4. **经历拆解**：每段经历拆成行为动词、量化结果、能力标签（必须有原文证据支撑）
+5. **能力证据汇总**：所有能力标签汇总，每个标签对应简历原文句子
 
 # 重要原则
 - 不要编造简历中没有的信息
 - 区分"自己主导做的事"和"参与协助的事"
-- 行为动词和量化结果越具体，能力推断越可靠
 
 # 输出格式（严格JSON）
 {
@@ -437,89 +635,84 @@ const RESUME_PROMPT = `你是一位擅长解读简历的招聘专家，能从经
 
 const MATCH_PROMPT = `你是一位严苛但公正的招聘评估专家。基于证据做匹配判断。
 
-# 输入
-- JD解析结果 + 简历解析结果（两份JSON）
-
 # 评分规则
-
-## 1. 硬性条件核验（满分40分）
-- 学历：简历学历 ≥ JD要求 → 通过；不通过得该项一半分
-- 工作年限：简历年限 ≥ JD要求×0.8 → 通过；不通过得该项一半分
-- 必备技能：简历技能∩JD必备技能 / JD必备技能总数 ≥ 70% → 通过
-- 每条均分40分
-
-## 2. 软性能力语义匹配（满分40分）
-对JD每条软性要求在简历的ability_summary中寻找语义匹配（非关键词匹配）。
-分级：
-- 🟢 强：简历中有直接、明确的行为证据
-- 🟡 中：简历中有间接或部分相关的证据
-- 🟠 弱：有相关但不够有力的暗示
-- 🔴 无：找不到任何证据
-
-## 3. 经验相关度（满分15分）：行业相似度、技术栈重叠、团队角色匹配
-## 4. 成长性（满分5分）：经历密度、成长速度、结果质量、主动性
+## 1. 硬性条件核验（满分40分）：学历/年限/必备技能逐一核验
+## 2. 软性能力语义匹配（满分40分）：对JD每条软性要求在简历中寻找语义匹配（非关键词匹配）
+   🟢强 🟡中 🟠弱 🔴无
+## 3. 经验相关度（满分15分）：行业相似度、技术栈重叠
+## 4. 成长性（满分5分）：经历密度、成长速度、主动性
 
 # 重要原则
 - 每处匹配判断必须引用简历原文作为证据
-- 不要因为学校好就给高分，也不要因为年限不够就低分
-
-# 输出格式（严格JSON）
+- 输出严格JSON
 {
   "overall_score": 数字,
   "score_breakdown": {
-    "hard_match": {
-      "score": 数字, "max": 40,
-      "checks": [{"item": "条件", "jd_requires": "JD要求", "candidate_has": "候选人情况", "passed": true/false, "score": 数字}]
-    },
-    "soft_match": {
-      "score": 数字, "max": 40,
-      "items": [{"jd_requirement": "JD原文", "match_level": "强/中/弱/无", "evidence": "简历原文证据", "explanation": "判断理由"}]
-    },
-    "relevance": {"score": 数字, "max": 15, "detail": "说明"},
-    "growth": {"score": 数字, "max": 5, "detail": "说明"}
+    "hard_match": {"score": 数字, "max": 40, "checks": [{"item":"","jd_requires":"","candidate_has":"","passed":true/false,"score":数字}]},
+    "soft_match": {"score": 数字, "max": 40, "items": [{"jd_requirement":"","match_level":"强/中/弱/无","evidence":"","explanation":""}]},
+    "relevance": {"score": 数字, "max": 15, "detail": ""},
+    "growth": {"score": 数字, "max": 5, "detail": ""}
   },
-  "verdict": "推荐面试 / 暂不匹配 / 信息不足",
+  "verdict": "推荐面试 / 可考虑 / 暂不匹配",
   "verdict_reason": "一句话总结"
 }`;
 
 const INTERVIEW_PROMPT = `你是一位资深面试官，擅长设计能区分"真做过"和"见过别人做"的结构化追问。
 
-# 任务
-基于匹配评估结果，为面试官设计一组可以立刻使用的追问。
+基于匹配评估结果，设计可立刻使用的追问。
 
-# 追问设计原则
+# 原则
+- STAR追问法：问"你当时是怎么做的"而不是"你会怎么做"
+- 验证真实性：追问细节、困难、改进
+- 风险项 → 验证/排除；亮点 → 确认深度
 
-## 原则1：STAR追问法
-不要问"你会怎么做"，要问"你当时是怎么做的"
-
-## 原则2：验证真实性
-- 追问细节：用了什么工具？遇到什么困难？怎么解决的？
-- 追问深度：如果再做一次，你会怎么改进？
-- 追问独立性：你主导的还是参与的？
-
-## 原则3：针对"风险项"和"亮点"分别设计
-- 风险项 → 验证/排除
-- 亮点 → 确认深度
-
-# 输出格式（Markdown，非JSON）
+# 输出格式（Markdown）
 ## 🎯 面试追问指南
-
 ### ⚠️ 需要验证的风险项
 **风险1：[名称]**
-> [追问——口语化，面试官可以直接念]
+> [追问——口语化]
 > 💡 追问逻辑：[为什么这么问]
-
 ### ✅ 需要确认深度的亮点
 **亮点1：[名称]**
 > [追问——口语化]
 > 💡 追问逻辑：[为什么这么问]`;
 
-// ==================== Core Logic ====================
+const FUNNEL_PROMPT = `你是一位招聘运营专家，擅长从招聘漏斗数据中诊断问题、给出可落地的改进建议。
+
+# 任务
+分析用户提供的招聘漏斗数据，找出瓶颈环节，诊断可能原因，给出具体改进建议。
+
+# 分析框架
+1. **转化率异常检测**：对比行业基准（简历筛选40-50%，电话初筛35-45%，技术面30-45%，HR面60-75%，Offer接受率55-70%）
+2. **瓶颈定位**：找出转化率最低的2-3个环节
+3. **根因推测**：基于HR经验推测可能原因（不要只说"转化率低"）
+4. **改进建议**：每条建议必须是可操作的、具体的
+
+# 输出格式（严格JSON）
+{
+  "overall_health": "健康 / 一般 / 需要关注 / 严重",
+  "overall_rate": "整体转化率（百分比）",
+  "bottlenecks": [
+    {
+      "stage": "环节名称",
+      "rate": "转化率百分比",
+      "benchmark": "行业基准范围",
+      "severity": "critical/warning/good",
+      "possible_causes": ["原因1", "原因2"],
+      "suggestions": ["具体建议1", "具体建议2"],
+      "expected_improvement": "预计可提升至XX%"
+    }
+  ],
+  "summary": "3-5句话的整体诊断总结",
+  "priority_action": "最应该优先解决的一件事"
+}`;
+
+// ==================== TAB 1: 单份匹配 ====================
 async function runMatch() {
   const jd = document.getElementById('jdInput').value.trim();
   const resume = document.getElementById('resumeInput').value.trim();
   if (!jd || !resume) { alert('请先粘贴 JD 和简历文本'); return; }
-  if (!getApiKey()) { openSettings(); alert('请先配置 DeepSeek API Key'); return; }
+  if (!getApiKey()) { openSettings(); return; }
 
   const btn = document.getElementById('matchBtn');
   btn.disabled = true;
@@ -529,36 +722,24 @@ async function runMatch() {
   document.getElementById('progress').classList.add('active');
 
   try {
-    // Step 1: Parse JD
     updateProgress(0, '正在解析JD结构...');
-    const jdRaw = await callDeepSeek(JD_PROMPT, jd, 0.1);
-    const jdParsed = extractJSON(jdRaw);
-    console.log('JD解析:', jdParsed);
+    const jdParsed = extractJSON(await callDeepSeek(JD_PROMPT, jd, 0, true));
 
-    // Step 2: Parse Resume
     updateProgress(1, '正在解析简历结构...');
-    const resumeRaw = await callDeepSeek(RESUME_PROMPT, resume, 0.1);
-    const resumeParsed = extractJSON(resumeRaw);
-    console.log('简历解析:', resumeParsed);
+    const resumeParsed = extractJSON(await callDeepSeek(RESUME_PROMPT, resume, 0, true));
 
-    // Step 3: Match
     updateProgress(2, '正在进行语义对比...');
     const matchInput = `【JD解析结果】\n${JSON.stringify(jdParsed, null, 2)}\n\n【简历解析结果】\n${JSON.stringify(resumeParsed, null, 2)}`;
-    const matchRaw = await callDeepSeek(MATCH_PROMPT, matchInput, 0.2);
-    const matchResult = extractJSON(matchRaw);
-    console.log('匹配结果:', matchResult);
+    const matchResult = extractJSON(await callDeepSeek(MATCH_PROMPT, matchInput, 0, true));
 
-    // Step 4: Interview Guide
     updateProgress(3, '正在生成面试追问...');
     const interviewRaw = await callDeepSeek(INTERVIEW_PROMPT, JSON.stringify(matchResult, null, 2), 0.5);
-    console.log('面试追问:', interviewRaw);
 
     updateProgress(4, '✅ 分析完成');
     setTimeout(() => {
       document.getElementById('progress').classList.remove('active');
-      renderReport(jdParsed, resumeParsed, matchResult, interviewRaw);
+      renderSingleReport(jdParsed, resumeParsed, matchResult, interviewRaw);
     }, 500);
-
   } catch(err) {
     alert('分析出错: ' + err.message);
     console.error(err);
@@ -579,26 +760,21 @@ function updateProgress(stepNum, text) {
   }
 }
 
-// ==================== Report Render ====================
-function renderReport(jd, resume, match, interview) {
+function renderSingleReport(jd, resume, match, interview) {
   const sb = match.score_breakdown;
   const score = match.overall_score;
   const verdict = match.verdict;
-  const verdictClass = verdict.includes('推荐') ? 'recommend' : verdict.includes('不匹配') ? 'reject' : 'hold';
+  const vc = verdict.includes('推荐') ? 'recommend' : verdict.includes('不匹配') ? 'reject' : 'hold';
 
-  let html = '';
-
-  // Header
-  html += `<div class="report-header">
+  let html = `<div class="report-header">
     <div class="score-ring" style="--score-pct:${score}">
       <div class="score-value" style="color:${score>=70?'var(--green)':score>=50?'var(--yellow)':'var(--red)'}">${score}</div>
     </div>
     <div style="font-size:20px;font-weight:700;">${resume.basics.name || '候选人'} — ${jd.position || '应聘岗位'}</div>
-    <div class="verdict-tag ${verdictClass}">${verdict}</div>
+    <div class="verdict-tag ${vc}">${verdict}</div>
     <div style="font-size:13px;color:var(--text2);margin-top:8px;">${match.verdict_reason || ''}</div>
   </div>`;
 
-  // Hard Match
   html += `<div class="report-block"><h3>1️⃣ 硬性条件核验 <span style="font-size:13px;color:var(--text2);font-weight:400;">${sb.hard_match.score}/${sb.hard_match.max}分</span></h3>`;
   html += `<table><thead><tr><th>条件</th><th>JD要求</th><th>候选人情况</th><th>结果</th></tr></thead><tbody>`;
   for (const c of sb.hard_match.checks || []) {
@@ -607,52 +783,41 @@ function renderReport(jd, resume, match, interview) {
   }
   html += `</tbody></table></div>`;
 
-  // Soft Match
   html += `<div class="report-block"><h3>2️⃣ 能力语义匹配 <span style="font-size:13px;color:var(--text2);font-weight:400;">${sb.soft_match.score}/${sb.soft_match.max}分</span></h3>`;
-  html += `<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">💡 这是TalentMatch的核心差异——不是匹配关键词，而是理解"做了什么"背后的"能力是什么"</p>`;
+  html += `<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">💡 不是匹配关键词，而是理解"做了什么"背后的"能力是什么"</p>`;
   for (const item of sb.soft_match.items || []) {
-    const lvlClass = item.match_level === '强' ? 'match-strong' : item.match_level === '中' ? 'match-mid' : item.match_level === '弱' ? 'match-weak' : 'match-none';
+    const lv = {'强':'match-strong','中':'match-mid','弱':'match-weak'}[item.match_level] || 'match-none';
     html += `<div style="margin-bottom:16px;">
-      <div style="font-weight:600;margin-bottom:4px;">${item.jd_requirement}</div>
-      <div>匹配强度：<span class="${lvlClass}">🟢 ${item.match_level}</span></div>`;
-    if (item.evidence) {
-      html += `<div class="evidence">📌 证据：${item.evidence}</div>`;
-    }
-    if (item.explanation) {
-      html += `<div style="font-size:13px;color:var(--text2);">${item.explanation}</div>`;
-    }
+      <div style="font-weight:600;">${item.jd_requirement}</div>
+      <div>匹配强度：<span class="${lv}">${item.match_level==='强'?'🟢':item.match_level==='中'?'🟡':item.match_level==='弱'?'🟠':'🔴'} ${item.match_level}</span></div>`;
+    if (item.evidence) html += `<div class="evidence">📌 证据：${item.evidence}</div>`;
+    if (item.explanation) html += `<div style="font-size:13px;color:var(--text2);">${item.explanation}</div>`;
     html += `</div>`;
   }
   html += `</div>`;
 
-  // Relevance + Growth
-  html += `<div class="report-block"><h3>3️⃣ 综合评估</h3>`;
-  html += `<table><tbody>
-    <tr><td style="width:120px;">经验相关度</td><td><strong>${sb.relevance?.score || '-'}/${sb.relevance?.max || 15}分</strong></td><td style="color:var(--text2);">${sb.relevance?.detail || ''}</td></tr>
-    <tr><td>成长性与潜力</td><td><strong>${sb.growth?.score || '-'}/${sb.growth?.max || 5}分</strong></td><td style="color:var(--text2);">${sb.growth?.detail || ''}</td></tr>
+  html += `<div class="report-block"><h3>3️⃣ 综合评估</h3><table><tbody>
+    <tr><td style="width:120px;">经验相关度</td><td><strong>${sb.relevance?.score||'-'}/${sb.relevance?.max||15}分</strong></td><td style="color:var(--text2);">${sb.relevance?.detail||''}</td></tr>
+    <tr><td>成长性与潜力</td><td><strong>${sb.growth?.score||'-'}/${sb.growth?.max||5}分</strong></td><td style="color:var(--text2);">${sb.growth?.detail||''}</td></tr>
   </tbody></table></div>`;
 
-  // Interview Guide
   if (interview) {
     html += `<div class="report-block"><h3>4️⃣ 面试追问指南</h3>`;
-    // Parse interview markdown (simple renderer)
-    const cleanInterview = interview.replace(/```[^]*?```/g, '');
-    const sections = cleanInterview.split(/(?=### [⚠✅])/);
-    for (const sec of sections) {
+    const ci = interview.replace(/```[^]*?```/g, '');
+    const secs = ci.split(/(?=### [⚠✅])/);
+    for (const sec of secs) {
       if (!sec.trim()) continue;
-      let secHtml = sec
-        .replace(/### (.*)/g, '<h4>$1</h4>')
+      let s = sec.replace(/### (.*)/g, '<h4>$1</h4>')
         .replace(/\*\*风险\d+[：:]\s*(.*?)\*\*/g, '<div style="font-weight:700;color:var(--red);margin-top:12px;">⚠️ $1</div>')
         .replace(/\*\*亮点\d+[：:]\s*(.*?)\*\*/g, '<div style="font-weight:700;color:var(--green);margin-top:12px;">✅ $1</div>')
         .replace(/^>\s*(.*?)$/gm, '<div class="interview-q"><div class="q-text">$1</div>')
         .replace(/^💡\s*\*\*追问逻辑[：:]\*\*\s*(.*?)$/gm, '<div class="q-logic">💡 $1</div></div>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      html += secHtml;
+      html += s;
     }
     html += `</div>`;
   }
 
-  // Footer note
   html += `<div class="report-block" style="text-align:center;font-size:12px;color:var(--text2);">
     📋 本报告由 <strong>TalentMatch</strong> AI 自动生成 · 辅助招聘决策 · 最终判断请结合面试实际表现
   </div>`;
@@ -662,11 +827,313 @@ function renderReport(jd, resume, match, interview) {
   document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
 }
 
+// ==================== TAB 2: 批量对比 ====================
+async function runBatch() {
+  const jd = document.getElementById('batchJdInput').value.trim();
+  const raw = document.getElementById('batchResumeInput').value.trim();
+  if (!jd || !raw) { alert('请先粘贴 JD 和简历文本'); return; }
+  if (!getApiKey()) { openSettings(); return; }
+
+  // 按 --- 分隔简历
+  const resumes = raw.split(/^---+$/m).map(r => r.trim()).filter(r => r.length > 20);
+  if (resumes.length === 0) { alert('未检测到有效简历，请用 --- 分隔每份简历'); return; }
+  if (resumes.length > 20) { alert('单次最多对比20份简历，当前' + resumes.length + '份'); return; }
+
+  const btn = document.getElementById('batchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>批量分析中...';
+  document.getElementById('batchReport').classList.remove('active');
+  document.getElementById('batchReport').innerHTML = '';
+  document.getElementById('batchProgress').classList.add('active');
+
+  try {
+    // Step 1: 解析 JD（只做一次）
+    updateBatchProgress(`正在解析 JD（1/${resumes.length + 1}）...`, 0);
+    const jdParsed = extractJSON(await callDeepSeek(JD_PROMPT, jd, 0, true));
+
+    const results = [];
+    for (let i = 0; i < resumes.length; i++) {
+      updateBatchProgress(`正在分析第 ${i+1}/${resumes.length} 份简历...`, (i+1)/resumes.length);
+
+      // 简历解析 + 匹配（串行）
+      const resumeParsed = extractJSON(await callDeepSeek(RESUME_PROMPT, resumes[i], 0, true));
+      const matchInput = `【JD解析结果】\n${JSON.stringify(jdParsed, null, 2)}\n\n【简历解析结果】\n${JSON.stringify(resumeParsed, null, 2)}`;
+      const matchResult = extractJSON(await callDeepSeek(MATCH_PROMPT, matchInput, 0, true));
+
+      results.push({ resume: resumeParsed, match: matchResult, raw: resumes[i] });
+    }
+
+    updateBatchProgress(`✅ 批量分析完成（${resumes.length}份简历）`, 1);
+    setTimeout(() => {
+      document.getElementById('batchProgress').classList.remove('active');
+      renderBatchReport(jdParsed, results);
+    }, 400);
+
+  } catch(err) {
+    alert('批量分析出错: ' + err.message);
+    console.error(err);
+    document.getElementById('batchProgress').classList.remove('active');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📊 开始批量对比';
+  }
+}
+
+function updateBatchProgress(text, pct) {
+  document.getElementById('batchProgressText').textContent = text;
+  document.getElementById('batchBar').style.width = (pct * 100) + '%';
+  document.getElementById('batchBar').classList.add('current');
+}
+
+// 存储批量结果用于展开/折叠
+let batchResultsCache = [];
+
+function renderBatchReport(jd, results) {
+  batchResultsCache = results;
+  // Sort by score desc
+  results.sort((a, b) => b.match.overall_score - a.match.overall_score);
+
+  let html = `<div class="report-header">
+    <div style="font-size:14px;color:var(--text2);">📊 批量对比结果</div>
+    <div style="font-size:22px;font-weight:700;margin:8px 0;">${jd.position || '岗位'} — ${results.length} 位候选人</div>
+    <div class="verdict-tag recommend">已按匹配度排序</div>
+  </div>`;
+
+  html += `<div class="report-block"><h3>🏆 候选人排行榜</h3>`;
+  html += `<table class="ranking-table"><thead><tr>
+    <th style="width:50px;">排名</th><th>姓名</th><th style="width:50px;">分数</th>
+    <th style="width:80px;">判定</th><th style="width:80px;">学历</th><th style="width:60px;">年限</th>
+    <th style="width:60px;">展开</th>
+  </tr></thead><tbody>`;
+
+  results.forEach((r, i) => {
+    const m = r.match;
+    const b = r.resume.basics;
+    const vc = m.verdict.includes('推荐') ? 'recommend' : m.verdict.includes('考虑') ? 'hold' : 'reject';
+    const sc = m.overall_score >= 70 ? 'var(--green)' : m.overall_score >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const rk = i < 3 ? `rank-${i+1}` : '';
+
+    html += `<tr class="rank-row" onclick="toggleDetail(${i})" id="row${i}">
+      <td><span class="rank-num ${rk}">${i+1}</span></td>
+      <td style="font-weight:600;">${b.name || '未知'}</td>
+      <td><strong style="color:${sc};font-size:16px;">${m.overall_score}</strong></td>
+      <td><span class="badge ${vc==='recommend'?'pass':vc==='hold'?'partial':'fail'}">${m.verdict}</span></td>
+      <td>${b.education || '-'}</td>
+      <td>${r.resume.total_years || '-'}年</td>
+      <td><span class="collapse-toggle" id="toggle${i}">▶ 展开</span></td>
+    </tr>`;
+    html += `<tr class="detail-row" id="detail${i}"><td colspan="7"><div class="detail-panel" id="detailPanel${i}"></div></td></tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  html += `<div class="report-block" style="text-align:center;font-size:12px;color:var(--text2);">
+    📋 点击每行展开详细匹配报告 · 由 <strong>TalentMatch</strong> AI 自动生成
+  </div>`;
+
+  document.getElementById('batchReport').innerHTML = html;
+  document.getElementById('batchReport').classList.add('active');
+  document.getElementById('batchReport').scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleDetail(i) {
+  const row = document.getElementById('row' + i);
+  const detail = document.getElementById('detail' + i);
+  const toggle = document.getElementById('toggle' + i);
+  const panel = document.getElementById('detailPanel' + i);
+
+  if (detail.classList.contains('open')) {
+    detail.classList.remove('open');
+    row.classList.remove('expanded');
+    toggle.textContent = '▶ 展开';
+  } else {
+    detail.classList.add('open');
+    row.classList.add('expanded');
+    toggle.textContent = '▼ 收起';
+
+    // Lazy render detail
+    if (!panel.innerHTML) {
+      const r = batchResultsCache[i];
+      const sb = r.match.score_breakdown;
+      let dhtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">`;
+
+      // Hard match
+      dhtml += `<div><h4 style="color:var(--accent2);margin-bottom:8px;">硬性条件</h4><table><tbody>`;
+      for (const c of sb.hard_match.checks || []) {
+        dhtml += `<tr><td>${c.item}</td><td>${c.jd_requires}</td><td>${c.candidate_has}</td><td>${c.passed?'✅':'⚠️'}</td></tr>`;
+      }
+      dhtml += `<tr><td colspan="3"><strong>得分</strong></td><td><strong>${sb.hard_match.score}/${sb.hard_match.max}</strong></td></tr>`;
+      dhtml += `</tbody></table></div>`;
+
+      // Soft match
+      dhtml += `<div><h4 style="color:var(--accent2);margin-bottom:8px;">语义匹配</h4>`;
+      for (const item of sb.soft_match.items || []) {
+        const lv = {'强':'🟢','中':'🟡','弱':'🟠','无':'🔴'}[item.match_level] || '🔴';
+        dhtml += `<div style="margin-bottom:8px;font-size:12px;"><strong>${lv} ${item.jd_requirement}</strong>`;
+        if (item.evidence) dhtml += `<div class="evidence" style="font-size:11px;">📌 ${item.evidence}</div>`;
+        dhtml += `</div>`;
+      }
+      dhtml += `<div style="font-size:12px;color:var(--text2);">得分: ${sb.soft_match.score}/${sb.soft_match.max}</div>`;
+      dhtml += `</div></div>`;
+
+      dhtml += `<div style="margin-top:12px;display:flex;gap:24px;font-size:12px;color:var(--text2);">
+        <span>经验相关度: ${sb.relevance?.score||'-'}/${sb.relevance?.max||15}</span>
+        <span>成长性: ${sb.growth?.score||'-'}/${sb.growth?.max||5}</span>
+        <span style="color:var(--text);">${r.match.verdict_reason||''}</span>
+      </div>`;
+
+      panel.innerHTML = dhtml;
+    }
+  }
+}
+
+// ==================== TAB 3: 漏斗诊断 ====================
+function ensureFunnelRows() {
+  const tbody = document.getElementById('funnelTbody');
+  if (tbody.children.length === 0) {
+    const defaults = [
+      ['简历筛选', 1200, 480],
+      ['电话初筛', 480, 200],
+      ['技术一面', 200, 78],
+      ['技术二面', 78, 28],
+      ['HR终面', 28, 15],
+      ['Offer发放', 15, 6]
+    ];
+    defaults.forEach(d => addFunnelRow(d[0], d[1], d[2]));
+  }
+}
+
+function addFunnelRow(name, entry, passed) {
+  const tbody = document.getElementById('funnelTbody');
+  const tr = document.createElement('tr');
+  const idx = tbody.children.length;
+  tr.innerHTML = `
+    <td><input type="text" value="${name || ''}" placeholder="环节名称" id="fn${idx}"></td>
+    <td><input type="number" value="${entry || ''}" placeholder="0" min="0" onchange="calcFunnel()" id="fe${idx}"></td>
+    <td><input type="number" value="${passed || ''}" placeholder="0" min="0" onchange="calcFunnel()" id="fp${idx}"></td>
+    <td class="auto-calc" id="fr${idx}">-</td>
+    <td><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();calcFunnel();" style="padding:4px 8px;font-size:11px;">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  if (entry) calcFunnel();
+}
+
+function calcFunnel() {
+  const tbody = document.getElementById('funnelTbody');
+  for (let i = 0; i < tbody.children.length; i++) {
+    const entryEl = document.getElementById('fe' + i);
+    const passEl = document.getElementById('fp' + i);
+    const rateEl = document.getElementById('fr' + i);
+    if (entryEl && passEl && rateEl) {
+      const e = parseFloat(entryEl.value) || 0;
+      const p = parseFloat(passEl.value) || 0;
+      rateEl.textContent = e > 0 ? (p/e*100).toFixed(1) + '%' : '-';
+    }
+  }
+}
+
+async function runFunnel() {
+  if (!getApiKey()) { openSettings(); return; }
+
+  // Collect funnel data
+  const tbody = document.getElementById('funnelTbody');
+  const stages = [];
+  for (let i = 0; i < tbody.children.length; i++) {
+    const name = document.getElementById('fn'+i)?.value?.trim();
+    const entry = parseInt(document.getElementById('fe'+i)?.value) || 0;
+    const passed = parseInt(document.getElementById('fp'+i)?.value) || 0;
+    if (name && entry > 0) {
+      stages.push({ stage: name, entered: entry, passed, rate: entry>0 ? (passed/entry*100).toFixed(1) : '0' });
+    }
+  }
+  if (stages.length < 3) { alert('请至少填写3个有效环节'); return; }
+
+  const context = document.getElementById('funnelContext').value.trim();
+
+  const btn = document.getElementById('funnelBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>诊断中...';
+  document.getElementById('funnelReport').classList.remove('active');
+  document.getElementById('funnelReport').innerHTML = '';
+  document.getElementById('funnelProgress').classList.add('active');
+  document.getElementById('funnelProgressText').textContent = '正在分析漏斗数据...';
+
+  try {
+    const input = `招聘漏斗数据：\n${JSON.stringify(stages, null, 2)}\n\n补充信息：${context || '无'}`;
+    const raw = await callDeepSeek(FUNNEL_PROMPT, input, 0.1, true);
+    const result = extractJSON(raw);
+    console.log('漏斗诊断:', result);
+
+    document.getElementById('funnelProgress').classList.remove('active');
+    renderFunnelReport(stages, result);
+  } catch(err) {
+    alert('诊断出错: ' + err.message);
+    console.error(err);
+    document.getElementById('funnelProgress').classList.remove('active');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔍 开始诊断';
+  }
+}
+
+function renderFunnelReport(stages, diag) {
+  const maxEntered = Math.max(...stages.map(s => s.entered));
+  const barColors = ['#6c5ce7', '#a29bfe', '#00d2a0', '#ffc048', '#ff6b6b', '#fd79a8'];
+
+  let html = `<div class="report-header">
+    <div style="font-size:14px;color:var(--text2);">📈 招聘漏斗诊断报告</div>
+    <div style="font-size:22px;font-weight:700;margin:8px 0;">整体健康度：${diag.overall_health}</div>
+    <div style="font-size:14px;color:var(--text2);">整体转化率：${diag.overall_rate}</div>
+  </div>`;
+
+  // Funnel visualization
+  html += `<div class="report-block"><h3>📊 漏斗可视化</h3>`;
+  html += `<div class="funnel-chart">`;
+  stages.forEach((s, i) => {
+    const h = (s.entered / maxEntered * 100);
+    html += `<div class="funnel-bar-group" style="flex:1;">
+      <div class="funnel-bar-val">${s.entered}</div>
+      <div class="funnel-bar" style="height:${h}%;background:${barColors[i%barColors.length]};"></div>
+      <div class="funnel-bar-label">${s.stage}<br>${s.rate}%</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Bottlenecks
+  html += `<div class="report-block"><h3>🔍 瓶颈诊断</h3>`;
+  for (const b of diag.bottlenecks || []) {
+    html += `<div class="funnel-insight ${b.severity}">
+      <div style="font-weight:700;font-size:15px;">${b.stage} — 转化率 ${b.rate}% <span style="font-size:12px;color:var(--text2);">（基准 ${b.benchmark}）</span></div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text2);">可能原因：</div>
+      <ul style="margin:4px 0 8px 20px;font-size:13px;">${(b.possible_causes||[]).map(c => `<li>${c}</li>`).join('')}</ul>
+      <div style="font-size:13px;color:var(--text2);">改进建议：</div>
+      <ul style="margin:4px 0 4px 20px;font-size:13px;">${(b.suggestions||[]).map(s => `<li>${s}</li>`).join('')}</ul>
+      <div style="font-size:12px;color:var(--green);margin-top:6px;">📈 ${b.expected_improvement || ''}</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  // Summary & priority
+  html += `<div class="report-block"><h3>📋 总结与行动建议</h3>
+    <div class="evidence">${diag.summary || ''}</div>
+    <div style="margin-top:16px;padding:16px;background:rgba(108,92,231,0.1);border-radius:8px;border:1px solid var(--accent);">
+      <strong>🎯 优先级最高：</strong>${diag.priority_action || ''}
+    </div>
+  </div>`;
+
+  html += `<div class="report-block" style="text-align:center;font-size:12px;color:var(--text2);">
+    📋 本报告由 <strong>TalentMatch</strong> AI 自动生成 · 基准数据来自行业报告 · 具体决策请结合实际情况
+  </div>`;
+
+  document.getElementById('funnelReport').innerHTML = html;
+  document.getElementById('funnelReport').classList.add('active');
+  document.getElementById('funnelReport').scrollIntoView({ behavior: 'smooth' });
+}
+
 // ==================== Settings ====================
 function openSettings() {
   const saved = getApiKey();
   document.getElementById('apiKeyInput').value = saved;
-  // 如果有已保存的 Key，显示提示
   const hintEl = document.getElementById('savedHint');
   if (saved) {
     const masked = saved.slice(0, 5) + '****' + saved.slice(-4);
@@ -684,26 +1151,11 @@ function saveSettings() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (key) {
     localStorage.setItem('tm_api_key', key);
-    // Cookie 备份（兼容部分浏览器 localStorage 被清理的情况）
     try { document.cookie = `tm_api_key=${encodeURIComponent(key)}; max-age=31536000; path=/; SameSite=Lax`; } catch(e) {}
     updateApiStatus();
     closeSettings();
     showToast('✅ API Key 已保存，下次访问无需重新输入');
   }
-}
-function getApiKey() {
-  // localStorage 优先，Cookie 兜底
-  let key = '';
-  try { key = localStorage.getItem('tm_api_key') || ''; } catch(e) {}
-  if (!key) {
-    const m = document.cookie.match(/(?:^|;\s*)tm_api_key=([^;]*)/);
-    if (m) {
-      key = decodeURIComponent(m[1]);
-      // 回写到 localStorage
-      try { localStorage.setItem('tm_api_key', key); } catch(e) {}
-    }
-  }
-  return key;
 }
 function updateApiStatus() {
   const key = getApiKey();
@@ -711,25 +1163,17 @@ function updateApiStatus() {
   const label = document.getElementById('apiLabel');
   dot.className = 'api-dot ' + (key ? 'ok' : 'no');
   if (key) {
-    const masked = key.slice(0, 5) + '****' + key.slice(-4);
-    label.textContent = 'API 已就绪 (' + masked + ')';
+    label.textContent = 'API 已就绪 (' + key.slice(0,5) + '****' + key.slice(-4) + ')';
   } else {
     label.textContent = '未配置 API Key';
   }
 }
-
-// Toast notification
 function showToast(msg) {
   let toast = document.getElementById('toast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'toast';
-    toast.style.cssText = `
-      position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
-      background:var(--green); color:#000; padding:12px 24px; border-radius:8px;
-      font-size:14px; font-weight:600; z-index:999; opacity:0; transition:opacity 0.3s;
-      pointer-events:none;
-    `;
+    toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
@@ -738,7 +1182,7 @@ function showToast(msg) {
 }
 
 // ==================== Demo Data ====================
-function loadDemo() {
+function loadSingleDemo() {
   document.getElementById('jdInput').value = `【岗位】后端开发工程师-飞书
 
 【岗位职责】
@@ -779,14 +1223,54 @@ Java, SpringBoot, MySQL, Redis, Kafka, Docker, Python（基础）
 - 毕业论文：基于深度学习的代码评审自动化（用Python+PyTorch实现）`;
 }
 
-// ==================== Init ====================
-updateApiStatus();
-if (!getApiKey()) {
-  openSettings();
+function loadBatchDemo() {
+  document.getElementById('batchJdInput').value = `【岗位】后端开发工程师-飞书
+
+【岗位职责】
+1. 负责飞书文档核心服务的后端架构设计与开发
+2. 参与高并发场景下的系统性能优化，保障服务稳定性
+3. 与产品、前端团队协作，推动复杂业务需求的落地
+
+【任职要求】
+1. 本科及以上学历，计算机相关专业优先
+2. 3年以上后端开发经验
+3. 精通Java，熟练掌握SpringBoot、MySQL、Redis等主流技术栈
+4. 熟悉分布式系统设计，有高并发场景实战经验
+5. 具备良好的系统设计能力和问题抽象能力
+6. 自驱力强，有技术热情`;
+
+  document.getElementById('batchResumeInput').value = `张驰 | 硕士-复旦大学-计算机 | 2年经验
+腾讯 — 后端开发工程师。重构订单模块为异步消息队列架构，QPS从200提升到1200。搭建数据看板体系，月活5000+。美团实习期间独立完成商家资质审核自动化，审核周期从3天缩短到4小时。技能: Java, SpringBoot, MySQL, Redis, Kafka, Docker。
+---
+李明 | 本科-上海交大-软件工程 | 5年经验
+字节跳动 — 高级后端工程师。负责抖音电商推荐系统的架构设计，日均处理10亿+请求。主导微服务拆分项目，将单体应用拆分为12个微服务。阿里实习参与双11大促系统保障。技能: Java, Go, MySQL, Redis, ElasticSearch, K8s, Kafka。
+---
+王芳 | 硕士-浙江大学-计算机 | 3年经验
+阿里巴巴 — Java开发工程师。参与淘宝商品中心的日常需求开发与维护。主要负责商品详情页的后端接口开发。修过一个库存超卖的Bug。技能: Java, SpringBoot, MySQL。
+---
+陈刚 | 本科-华中科技大学-软件工程 | 1年经验
+应届毕业生。在导师实验室参与过一个课程管理系统开发（SpringBoot+Vue）。参加过蓝桥杯Java组省赛二等奖。LeetCode刷题300+。技能: Java, SpringBoot, MySQL, Redis（了解）。
+---
+刘洋 | 硕士-北京大学-计算机 | 4年经验
+美团 — 后端技术专家。从0到1搭建了美团配送调度系统的实时监控平台，覆盖全国300+城市。主导了配送算法团队的技术面试，累计面试200+人。开源项目Apache Dubbo Committer。技能: Java, Go, Python, MySQL, Redis, K8s, Kafka, Flink。`;
 }
 
-// ==================== File Upload & Parse ====================
-// Dynamically load external libraries
+function loadFunnelDemo() {
+  // Clear existing
+  document.getElementById('funnelTbody').innerHTML = '';
+  const data = [
+    ['简历筛选', 1200, 480],
+    ['电话初筛', 480, 192],
+    ['技术一面', 192, 65],
+    ['技术二面', 65, 19],
+    ['HR终面', 19, 11],
+    ['Offer发放', 11, 4]
+  ];
+  data.forEach(d => addFunnelRow(d[0], d[1], d[2]));
+  document.getElementById('funnelContext').value = '互联网行业中后台研发岗，通过BOSS直聘和内推渠道招聘，薪资范围20-35K，岗位要求3-5年经验。HR团队共3人，月均处理简历约1200份。最近扩招，HC从3个增加到8个。';
+}
+
+// ==================== File Upload ====================
 let libsLoaded = { jszip: false, pdfjs: false, tesseract: false };
 
 function loadJSZip() {
@@ -795,7 +1279,7 @@ function loadJSZip() {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
     s.onload = () => { libsLoaded.jszip = true; resolve(); };
-    s.onerror = () => reject(new Error('JSZip 加载失败，请检查网络'));
+    s.onerror = () => reject(new Error('JSZip 加载失败'));
     document.head.appendChild(s);
   });
 }
@@ -807,26 +1291,38 @@ function loadPDFJS() {
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
     s.onload = () => {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      libsLoaded.pdfjs = true;
-      resolve();
+      libsLoaded.pdfjs = true; resolve();
     };
-    s.onerror = () => reject(new Error('PDF.js 加载失败，请检查网络'));
+    s.onerror = () => reject(new Error('PDF.js 加载失败'));
     document.head.appendChild(s);
   });
 }
 
+// Tab 1 file handler
 async function handleFile(which) {
   const fileInput = document.getElementById(which === 'jd' ? 'jdFile' : 'resumeFile');
   const fileNameEl = document.getElementById(which === 'jd' ? 'jdFileName' : 'resumeFileName');
   const textarea = document.getElementById(which === 'jd' ? 'jdInput' : 'resumeInput');
   const card = document.getElementById(which === 'jd' ? 'jdCard' : 'resumeCard');
+  await doHandleFile(fileInput, fileNameEl, textarea, card);
+}
 
+// Tab 2 file handler
+async function handleFileBatch(which) {
+  const fileInput = document.getElementById(which === 'jd' ? 'batchJdFile' : 'batchResumeFile');
+  const fileNameEl = document.getElementById(which === 'jd' ? 'batchJdFileName' : 'batchResumeFileName');
+  const textarea = document.getElementById(which === 'jd' ? 'batchJdInput' : 'batchResumeInput');
+  const card = fileInput.closest('.input-card');
+  await doHandleFile(fileInput, fileNameEl, textarea, card);
+}
+
+async function doHandleFile(fileInput, fileNameEl, textarea, card) {
   const file = fileInput.files[0];
   if (!file) return;
 
   fileNameEl.textContent = `⏳ 解析中: ${file.name}`;
   fileNameEl.className = 'file-name';
-  card.style.opacity = '0.7';
+  if (card) card.style.opacity = '0.7';
 
   try {
     const ext = file.name.split('.').pop().toLowerCase();
@@ -844,9 +1340,7 @@ async function handleFile(which) {
       throw new Error(`不支持的文件格式: .${ext}`);
     }
 
-    if (!text || text.trim().length < 10) {
-      throw new Error('文件内容为空或解析失败');
-    }
+    if (!text || text.trim().length < 10) throw new Error('文件内容为空或解析失败');
 
     textarea.value = text;
     fileNameEl.textContent = `✅ ${file.name} (${text.length}字)`;
@@ -855,7 +1349,7 @@ async function handleFile(which) {
     fileNameEl.textContent = `❌ ${err.message}`;
     fileNameEl.className = 'file-name error';
   } finally {
-    card.style.opacity = '1';
+    if (card) card.style.opacity = '1';
     fileInput.value = '';
   }
 }
@@ -864,28 +1358,15 @@ async function parseDOCX(file) {
   await loadJSZip();
   const zip = await JSZip.loadAsync(file);
   const docXml = await zip.file('word/document.xml')?.async('string');
-  if (!docXml) throw new Error('无法读取docx文件内容');
+  if (!docXml) throw new Error('无法读取docx文件');
 
-  // Strip XML tags, decode entities
-  let text = docXml
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#(\d+);/g, (m, d) => String.fromCharCode(d))
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // Try to structure: split on paragraph markers
   const paragraphs = docXml.split(/<\/w:p>/);
   const lines = [];
   for (const p of paragraphs) {
     const t = p.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     if (t) lines.push(t);
   }
-
-  return lines.length > 0 ? lines.join('\n') : text;
+  return lines.join('\n');
 }
 
 async function parsePDF(file) {
@@ -896,14 +1377,12 @@ async function parsePDF(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const pageText = content.items.map(item => item.str).join(' ');
-    pages.push(pageText);
+    pages.push(content.items.map(it => it.str).join(' '));
   }
-  return pages.join('\n').replace(/\s+/g, ' ').trim();
+  return pages.join('\n').trim();
 }
 
 async function parseImage(file) {
-  // For images: use Tesseract.js for OCR (loaded on demand)
   return new Promise((resolve, reject) => {
     if (!libsLoaded.tesseract) {
       const s = document.createElement('script');
@@ -911,58 +1390,51 @@ async function parseImage(file) {
       s.onload = () => { libsLoaded.tesseract = true; doOCR(); };
       s.onerror = () => reject(new Error('OCR引擎加载失败'));
       document.head.appendChild(s);
-    } else {
-      doOCR();
-    }
+    } else { doOCR(); }
 
     async function doOCR() {
       try {
         const imgUrl = URL.createObjectURL(file);
-        const result = await Tesseract.recognize(imgUrl, 'chi_sim+eng', {
-          logger: m => {
-            if (m.status === 'recognizing text') {
-              const pct = Math.round(m.progress * 100);
-              // Update filename with progress
-              const el = document.querySelector(`[id$="FileName"]`);
-              if (el) el.textContent = `⏳ OCR识别中 ${pct}%...`;
-            }
-          }
-        });
+        const result = await Tesseract.recognize(imgUrl, 'chi_sim+eng');
         URL.revokeObjectURL(imgUrl);
         resolve(result.data.text.trim());
-      } catch(e) {
-        reject(new Error('图片OCR识别失败: ' + e.message));
-      }
+      } catch(e) { reject(new Error('OCR识别失败: ' + e.message)); }
     }
   });
 }
 
-// Drag and drop support
-document.querySelectorAll('.input-card').forEach(card => {
-  card.addEventListener('dragover', e => {
-    e.preventDefault();
-    card.classList.add('dragover');
-  });
-  card.addEventListener('dragleave', () => {
-    card.classList.remove('dragover');
-  });
-  card.addEventListener('drop', async e => {
-    e.preventDefault();
-    card.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    // Determine which target
-    const which = card.id === 'jdCard' ? 'jd' : 'resume';
-    const fileInput = document.getElementById(which === 'jd' ? 'jdFile' : 'resumeFile');
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    fileInput.files = dt.files;
-
-    // Trigger parse
-    await handleFile(which);
+// Drag and drop (tab 1 & tab 2)
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.input-card').forEach(card => {
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('dragover'); });
+    card.addEventListener('dragleave', () => card.classList.remove('dragover'));
+    card.addEventListener('drop', async e => {
+      e.preventDefault();
+      card.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      const fileInput = card.querySelector('input[type="file"]');
+      if (!fileInput) return;
+      const dt = new DataTransfer(); dt.items.add(file); fileInput.files = dt.files;
+      // Determine handler
+      const isBatch = card.closest('#panelBatch');
+      if (isBatch) {
+        const which = card.querySelector('textarea')?.id?.includes('Jd') ? 'jd' : 'resume';
+        await handleFileBatch(which);
+      } else {
+        const which = card.querySelector('textarea')?.id?.startsWith('jd') ? 'jd' : 'resume';
+        await handleFile(which);
+      }
+    });
   });
 });
+
+// ==================== Init ====================
+updateApiStatus();
+if (!getApiKey()) {
+  openSettings();
+}
+ensureFunnelRows();
 </script>
 </body>
 </html>
