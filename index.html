@@ -6,17 +6,21 @@
 <title>TalentMatch — AI简历语义匹配助手</title>
 <style>
   :root {
-    --bg: #0f0f1a;
-    --card: #1a1a2e;
-    --border: #2a2a4a;
-    --text: #e0e0f0;
-    --text2: #9898b8;
-    --accent: #6c5ce7;
-    --accent2: #a29bfe;
-    --green: #00d2a0;
-    --yellow: #ffc048;
-    --red: #ff6b6b;
-    --radius: 12px;
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1a1a2e;
+    --text2: #6b7280;
+    --text3: #9ca3af;
+    --accent: #22c55e;
+    --accent2: #16a34a;
+    --accent-light: #f0fdf4;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --radius: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -29,10 +33,11 @@
 
   /* Header */
   .header {
-    background: linear-gradient(135deg, #1a1a3e 0%, #0f0f2a 100%);
+    background: #fff;
     border-bottom: 1px solid var(--border);
-    padding: 20px 0;
+    padding: 16px 0;
     position: sticky; top:0; z-index:10;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
   .header-inner {
     max-width: 1200px; margin:0 auto; padding:0 24px;
@@ -40,12 +45,12 @@
   }
   .logo { display:flex; align-items:center; gap:12px; }
   .logo-icon {
-    width:40px; height:40px; background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px; display:flex; align-items:center; justify-content:center;
-    font-size:20px;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    position: relative;
   }
-  .logo h1 { font-size:20px; font-weight:700; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent2); }
+  .logo-icon svg { width:36px; height:36px; }
+  .logo h1 { font-size:20px; font-weight:700; letter-spacing: -0.5px; color: #1a1a2e; }
+  .logo span { color: var(--accent); }
   .api-status {
     display:flex; align-items:center; gap:8px;
     font-size:13px; color: var(--text2);
@@ -56,20 +61,20 @@
 
   /* Tab Navigation */
   .tab-nav {
-    display: flex; gap: 4px; max-width: 1200px; margin: 0 auto; padding: 20px 24px 0;
-    border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; max-width: 1200px; margin: 0 auto; padding: 0 24px;
+    background: #fff; border-bottom: 1px solid var(--border);
   }
   .tab-btn {
-    padding: 10px 24px; border: none; background: transparent;
+    padding: 12px 24px; border: none; background: transparent;
     color: var(--text2); font-size: 14px; font-weight: 500; cursor: pointer;
     border-bottom: 2px solid transparent; margin-bottom: -1px;
     transition: all 0.2s; display: flex; align-items: center; gap: 8px;
   }
   .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
   .tab-badge {
     font-size: 11px; padding: 2px 8px; border-radius: 10px;
-    background: rgba(108,92,231,0.2); color: var(--accent2);
+    background: rgba(34,197,94,0.1); color: var(--accent);
   }
 
   /* Main */
@@ -84,62 +89,65 @@
 
   .input-card {
     background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
-    padding:20px; display:flex; flex-direction:column;
+    padding:24px; display:flex; flex-direction:column;
+    box-shadow: var(--shadow);
   }
   .input-card h3 {
-    font-size:15px; margin-bottom:4px; display:flex; align-items:center; gap:8px;
+    font-size:16px; margin-bottom:6px; display:flex; align-items:center; gap:8px;
+    color: var(--text);
   }
-  .input-card .hint { font-size:12px; color: var(--text2); margin-bottom:12px; }
+  .input-card .hint { font-size:12px; color: var(--text2); margin-bottom:14px; }
   .input-card textarea {
-    flex:1; min-height:200px; background:#0a0a18; border:1px solid var(--border);
-    border-radius:8px; padding:14px; color: var(--text); font-size:13px;
+    flex:1; min-height:200px; background:#f9fafb; border:1px solid var(--border);
+    border-radius:10px; padding:14px; color: var(--text); font-size:13px;
     font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
     line-height: 1.6; resize:vertical;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .input-card textarea:focus { outline:none; border-color: var(--accent); }
-  .input-card textarea::placeholder { color: #4a4a6a; }
+  .input-card textarea:focus { outline:none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.1); }
+  .input-card textarea::placeholder { color: var(--text3); }
   .file-upload {
     margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   }
   .file-upload input[type="file"] { display:none; }
   .file-btn {
-    padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer;
-    background:transparent; border:1px dashed var(--border); color: var(--text2);
+    padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;
+    background:var(--accent-light); border:1px dashed var(--accent); color: var(--accent2);
     transition: all 0.2s; display:inline-flex; align-items:center; gap:6px;
   }
-  .file-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .file-btn:hover { background: var(--accent); color: #fff; border-style:solid; }
   .file-name { font-size:12px; color: var(--green); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .file-name.error { color: var(--red); }
-  .input-card.dragover { border-color: var(--accent); box-shadow: 0 0 20px rgba(108,92,231,0.2); }
+  .input-card.dragover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.15); }
 
   /* Buttons */
   .btn-row { display:flex; gap:12px; justify-content:center; margin-bottom:32px; flex-wrap:wrap; }
   .btn {
-    padding:12px 32px; border-radius:8px; font-size:15px; font-weight:600;
+    padding:12px 32px; border-radius:10px; font-size:15px; font-weight:600;
     cursor:pointer; border:none; transition: all 0.2s; display:flex; align-items:center; gap:8px;
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #5a4bd1);
-    color:#fff; box-shadow: 0 4px 20px rgba(108,92,231,0.3);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color:#fff; box-shadow: 0 4px 16px rgba(34,197,94,0.25);
   }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(108,92,231,0.4); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,0.35); }
   .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-  .btn-outline { background:transparent; border:1px solid var(--border); color: var(--text2); }
-  .btn-outline:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-outline { background:var(--card); border:1px solid var(--border); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
   .btn-sm { padding:8px 16px; font-size:13px; }
-  .btn-danger { background:transparent; border:1px solid rgba(255,107,107,0.3); color: var(--red); }
-  .btn-danger:hover { border-color: var(--red); background: rgba(255,107,107,0.1); }
+  .btn-danger { background:transparent; border:1px solid rgba(239,68,68,0.3); color: var(--red); }
+  .btn-danger:hover { border-color: var(--red); background: rgba(239,68,68,0.06); }
 
   /* Progress */
   .progress {
     display:none; background: var(--card); border:1px solid var(--border);
     border-radius: var(--radius); padding:20px 24px; margin-bottom:24px;
+    box-shadow: var(--shadow);
   }
   .progress.active { display:block; }
-  .progress-steps { display:flex; gap:4px; margin-bottom:12px; }
+  .progress-steps { display:flex; gap:6px; margin-bottom:12px; }
   .progress-step {
-    flex:1; height:4px; border-radius:2px; background: var(--border); transition: background 0.3s;
+    flex:1; height:4px; border-radius:2px; background: #e5e7eb; transition: background 0.3s;
   }
   .progress-step.done { background: var(--green); }
   .progress-step.current { background: var(--accent); animation: pulse 1.5s infinite; }
@@ -151,19 +159,19 @@
   .report.active { display:block; }
 
   .report-header {
-    background: linear-gradient(135deg, #1e1e3e 0%, #1a1a30 100%);
-    border:1px solid var(--border); border-radius: var(--radius); padding:24px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border:1px solid rgba(34,197,94,0.2); border-radius: var(--radius); padding:28px;
     margin-bottom:20px; text-align:center;
   }
   .score-ring {
     width:100px; height:100px; border-radius:50%;
-    background: conic-gradient(var(--green) 0deg calc(var(--score-pct) * 3.6deg), #1a1a30 calc(var(--score-pct) * 3.6deg) 360deg);
+    background: conic-gradient(var(--green) 0deg calc(var(--score-pct) * 3.6deg), #e5e7eb calc(var(--score-pct) * 3.6deg) 360deg);
     display:flex; align-items:center; justify-content:center;
     margin:0 auto 12px;
     position:relative;
   }
   .score-ring::after {
-    content:''; width:76px; height:76px; border-radius:50%; background: #1a1a30;
+    content:''; width:76px; height:76px; border-radius:50%; background: #fff;
     position:absolute;
   }
   .score-value { position:relative; z-index:1; font-size:28px; font-weight:800; }
@@ -177,17 +185,19 @@
 
   .report-block {
     background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
-    padding:20px 24px; margin-bottom:16px;
+    padding:24px; margin-bottom:16px;
+    box-shadow: var(--shadow);
   }
   .report-block h3 {
     font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+    color: var(--text);
   }
   .report-block h4 { font-size:14px; margin:16px 0 8px; color: var(--accent2); }
 
   /* Tables */
   table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); color: var(--text2); font-weight:500; font-size:12px; }
-  td { padding:10px 12px; border-bottom:1px solid rgba(42,42,74,0.5); }
+  th { text-align:left; padding:10px 12px; border-bottom:2px solid var(--border); color: var(--text2); font-weight:600; font-size:12px; background: #f9fafb; }
+  td { padding:10px 12px; border-bottom:1px solid #f3f4f6; }
   .badge {
     display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:600;
   }
@@ -201,18 +211,18 @@
 
   /* Evidence block */
   .evidence {
-    background: #0a0a18; border-left:3px solid var(--accent);
+    background: #f0fdf4; border-left:3px solid var(--accent);
     padding:12px 16px; border-radius:0 8px 8px 0; margin:8px 0;
-    font-size:13px; color: var(--accent2); font-style:italic;
+    font-size:13px; color: var(--accent2);
   }
 
   /* Interview section */
   .interview-q {
-    background: #0a0a18; border-radius:8px; padding:16px; margin:12px 0;
-    border:1px solid rgba(42,42,74,0.3);
+    background: #f9fafb; border-radius:8px; padding:16px; margin:12px 0;
+    border:1px solid var(--border);
   }
   .interview-q .q-text {
-    font-size:15px; font-weight:500; margin-bottom:8px; color: #fff;
+    font-size:15px; font-weight:500; margin-bottom:8px; color: var(--text);
   }
   .interview-q .q-logic {
     font-size:12px; color: var(--text2);
@@ -231,65 +241,67 @@
   .ranking-table th { cursor:pointer; user-select:none; }
   .ranking-table th:hover { color: var(--text); }
   .ranking-table tr.rank-row { cursor:pointer; transition: background 0.15s; }
-  .ranking-table tr.rank-row:hover { background: rgba(108,92,231,0.08); }
-  .ranking-table tr.rank-row.expanded { background: rgba(108,92,231,0.12); }
+  .ranking-table tr.rank-row:hover { background: rgba(34,197,94,0.04); }
+  .ranking-table tr.rank-row.expanded { background: rgba(34,197,94,0.08); }
   .rank-num { font-size:18px; font-weight:800; }
-  .rank-1 { color: #ffd700; }
-  .rank-2 { color: #c0c0c0; }
-  .rank-3 { color: #cd7f32; }
+  .rank-1 { color: #22c55e; }
+  .rank-2 { color: #4ade80; }
+  .rank-3 { color: #86efac; }
   .detail-row { display:none; }
   .detail-row.open { display:table-row; }
   .detail-row td { padding:0; border-bottom:2px solid var(--accent); }
-  .detail-panel { padding:20px 24px; background: #101025; }
+  .detail-panel { padding:24px; background: #f9fafb; }
 
   /* Collapse animation */
-  .collapse-toggle { font-size:12px; color: var(--accent2); cursor:pointer; }
-  .collapse-toggle:hover { text-decoration:underline; }
+  .collapse-toggle { font-size:12px; color: var(--accent); cursor:pointer; font-weight: 500; }
+  .collapse-toggle:hover { color: var(--accent2); }
 
   /* Funnel input table */
   .funnel-table input {
-    width:100%; padding:6px 8px; background:#0a0a18; border:1px solid var(--border);
-    border-radius:4px; color: var(--text); font-size:13px; text-align:center;
+    width:100%; padding:8px; background:#f9fafb; border:1px solid var(--border);
+    border-radius:6px; color: var(--text); font-size:13px; text-align:center;
     font-family: 'SF Mono', 'Consolas', monospace;
   }
-  .funnel-table input:focus { outline:none; border-color: var(--accent); }
+  .funnel-table input:focus { outline:none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.1); }
   .funnel-table .auto-calc { color: var(--text2); font-size:12px; text-align:center; }
   .funnel-add-btn {
-    padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer;
-    background:transparent; border:1px dashed var(--border); color: var(--text2);
+    padding:8px 16px; border-radius:8px; font-size:12px; cursor:pointer;
+    background:var(--accent-light); border:1px dashed var(--accent); color: var(--accent2);
     transition: all 0.2s;
   }
-  .funnel-add-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .funnel-add-btn:hover { background: var(--accent); color: #fff; border-style:solid; }
 
   /* Settings modal */
   .modal-overlay {
-    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4);
     z-index:100; align-items:center; justify-content:center;
+    backdrop-filter: blur(4px);
   }
   .modal-overlay.active { display:flex; }
   .modal {
     background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
-    padding:24px; width:90%; max-width:480px;
+    padding:28px; width:90%; max-width:480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
   }
-  .modal h3 { margin-bottom:16px; }
+  .modal h3 { margin-bottom:16px; color: var(--text); }
   .modal input {
-    width:100%; padding:10px 14px; background:#0a0a18; border:1px solid var(--border);
+    width:100%; padding:10px 14px; background:#f9fafb; border:1px solid var(--border);
     border-radius:8px; color: var(--text); font-size:14px; margin-bottom:12px;
     font-family: 'SF Mono', 'Consolas', monospace;
   }
-  .modal input:focus { outline:none; border-color: var(--accent); }
+  .modal input:focus { outline:none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.1); }
   .modal .btn-row { margin-bottom:0; justify-content:flex-end; }
 
   /* Funnel diagnostic */
   .funnel-insight {
     border-left: 3px solid var(--accent);
-    padding: 12px 16px; margin: 12px 0;
-    border-radius: 0 8px 8px 0;
-    background: #0a0a18;
+    padding: 16px; margin: 12px 0;
+    border-radius: 0 10px 10px 0;
+    background: #f9fafb;
   }
-  .funnel-insight.critical { border-left-color: var(--red); }
-  .funnel-insight.warning { border-left-color: var(--yellow); }
-  .funnel-insight.good { border-left-color: var(--green); }
+  .funnel-insight.critical { border-left-color: var(--red); background: #fef2f2; }
+  .funnel-insight.warning { border-left-color: var(--yellow); background: #fffbeb; }
+  .funnel-insight.good { border-left-color: var(--green); background: #f0fdf4; }
   .funnel-chart {
     display: flex; align-items: flex-end; gap: 16px;
     height: 180px; padding: 16px 0; margin: 16px 0;
@@ -308,12 +320,44 @@
   .funnel-bar-label { font-size: 11px; color: var(--text2); text-align: center; }
   .funnel-bar-val { font-size: 12px; font-weight: 700; }
 
+  /* Feedback panel */
+  .feedback-panel {
+    background: #fffbeb; border:1px solid rgba(245,158,11,0.3); border-radius: var(--radius);
+    padding:20px 24px; margin: 20px 0;
+  }
+  .feedback-panel h3 { font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px; color: #92400e; }
+  .feedback-panel textarea {
+    width:100%; min-height:60px; background:#fff; border:1px solid rgba(245,158,11,0.3);
+    border-radius:8px; padding:10px; color: var(--text); font-size:13px;
+    resize:vertical; font-family: inherit;
+  }
+  .feedback-panel textarea:focus { outline:none; border-color: var(--yellow); }
+  .feedback-tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .feedback-tag {
+    padding:5px 12px; border-radius:16px; font-size:12px; cursor:pointer;
+    border:1px solid rgba(245,158,11,0.3); background:#fff; color: #92400e;
+    transition: all 0.15s;
+  }
+  .feedback-tag:hover, .feedback-tag.active { background: var(--yellow); color:#fff; border-color:var(--yellow); }
+  .feedback-result { margin-top:8px; padding:10px 14px; border-radius:8px; font-size:13px; display:none; }
+  .feedback-result.show { display:block; }
+  .feedback-result.success { background:#f0fdf4; color:#166534; }
+
+  /* File list */
+  .file-list-item {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 8px; margin:2px; background:#e5e7eb; border-radius:4px;
+    font-size:11px; color:#374151;
+  }
+  .file-list-item .remove { cursor:pointer; color:#9ca3af; font-weight:700; }
+  .file-list-item .remove:hover { color:#ef4444; }
+
   /* Footer */
-  .footer {
     text-align:center; padding:32px; color: var(--text2); font-size:12px;
     border-top:1px solid var(--border); margin-top:48px;
+    background: #fff;
   }
-  .footer a { color: var(--accent2); text-decoration:none; }
+  .footer a { color: var(--accent); text-decoration:none; }
 </style>
 </head>
 <body>
@@ -321,7 +365,14 @@
 <div class="header">
   <div class="header-inner">
     <div class="logo">
-      <div class="logo-icon">⚡</div>
+      <div class="logo-icon">
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Left half of puzzle piece -->
+          <path d="M6 8V18c0 3-3 5-3 5s3 2 3 5v8h14V30c0-3 4-4 4-4s-4-1-4-4v-6c0-3 4-4 4-4s-4-1-4-4V8H6z" fill="#22c55e"/>
+          <!-- Right half of puzzle piece -->
+          <path d="M38 8v10c0 3 3 5 3 5s-3 2-3 5v8H24v-6c0-3-4-4-4-4s4-1 4-4v-6c0-3-4-4-4-4s4-1 4-4V8h14z" fill="#16a34a"/>
+        </svg>
+      </div>
       <h1>Talent<span>Match</span></h1>
     </div>
     <div class="api-status">
@@ -407,13 +458,16 @@
     </div>
     <div class="input-card">
       <h3>👥 候选人简历（多份，用 --- 分隔）</h3>
-      <p class="hint">每人一份简历文本，用独占一行的 <code>---</code> 作为分隔符。第一行识别为姓名。</p>
-      <textarea id="batchResumeInput" placeholder="张驰&#10;硕士-复旦大学-计算机 | 2年工作经验&#10;腾讯 — 后端开发工程师...&#10;---&#10;李明&#10;本科-上海交大-软件工程 | 5年工作经验&#10;字节跳动 — 高级后端...&#10;---&#10;王芳&#10;硕士-浙江大学-计算机 | 3年工作经验&#10;阿里 — Java开发工程师..." style="min-height:300px;"></textarea>
+      <p class="hint">粘贴多份简历（<code>---</code>分隔），或批量上传文件 / ZIP压缩包</p>
+      <textarea id="batchResumeInput" placeholder="张驰&#10;硕士-复旦大学-计算机 | 2年工作经验&#10;腾讯 — 后端开发工程师...&#10;---&#10;李明&#10;本科-上海交大-软件工程 | 5年工作经验&#10;字节跳动 — 高级后端...&#10;---&#10;王芳&#10;硕士-浙江大学-计算机 | 3年工作经验&#10;阿里 — Java开发工程师..." style="min-height:280px;"></textarea>
       <div class="file-upload">
-        <button class="file-btn" onclick="document.getElementById('batchResumeFile').click()">📎 上传文件</button>
-        <input type="file" id="batchResumeFile" accept=".docx,.pdf,.txt,.md" onchange="handleFileBatch('resume')">
+        <button class="file-btn" onclick="document.getElementById('batchResumeFile').click()">📁 批量上传文件</button>
+        <input type="file" id="batchResumeFile" accept=".docx,.pdf,.txt,.md,.zip" multiple onchange="handleFileBatch('resume')">
+        <button class="file-btn" onclick="document.getElementById('batchZipFile').click()" style="margin-left:4px;">📦 上传ZIP</button>
+        <input type="file" id="batchZipFile" accept=".zip" onchange="handleBatchZip()">
         <span class="file-name" id="batchResumeFileName"></span>
       </div>
+      <div id="batchFileList" style="display:none;margin-top:8px;padding:8px 12px;background:#f9fafb;border-radius:8px;font-size:12px;color:var(--text2);max-height:100px;overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -887,9 +941,16 @@ function updateBatchProgress(text, pct) {
 
 // 存储批量结果用于展开/折叠
 let batchResultsCache = [];
+let batchJdCache = null;
+let batchFeedbackHistory = [];
+let batchActiveFeedbackTags = [];
 
 function renderBatchReport(jd, results) {
   batchResultsCache = results;
+  batchJdCache = jd;
+  // Reset feedback on new batch
+  batchFeedbackHistory = [];
+  batchActiveFeedbackTags = [];
   // Sort by score desc
   results.sort((a, b) => b.match.overall_score - a.match.overall_score);
 
@@ -929,6 +990,28 @@ function renderBatchReport(jd, results) {
 
   html += `<div class="report-block" style="text-align:center;font-size:12px;color:var(--text2);">
     📋 点击每行展开详细匹配报告 · 由 <strong>TalentMatch</strong> AI 自动生成
+  </div>`;
+
+  // Feedback panel
+  html += `<div class="feedback-panel" id="feedbackPanel">
+    <h3>💬 反馈 & 人才画像迭代</h3>
+    <p style="font-size:12px;color:#92400e;margin-bottom:10px;">
+      匹配结果是否符合预期？补充你的判断或调整筛选侧重，让AI重新匹配。
+    </p>
+    <div class="feedback-tags" id="feedbackTags">
+      <span class="feedback-tag" onclick="toggleFeedbackTag(this, '太严格了，放宽硬性条件')">🔽 太严格了</span>
+      <span class="feedback-tag" onclick="toggleFeedbackTag(this, '太宽松了，收紧匹配标准')">🔼 太宽松了</span>
+      <span class="feedback-tag" onclick="toggleFeedbackTag(this, '增加硬性条件要求')">📋 补充硬性条件</span>
+      <span class="feedback-tag" onclick="toggleFeedbackTag(this, '调整软性能力侧重')">🎯 调整软性侧重</span>
+      <span class="feedback-tag" onclick="toggleFeedbackTag(this, '补充行业/岗位上下文')">🏢 补充上下文</span>
+    </div>
+    <textarea id="feedbackNote" placeholder="例如：我们其实更看重跨团队协作能力，技术栈可以放宽；或者：我发现第3名王芳应该排在更前面，因为她有电商经验...&#10;&#10;这里写你的补充判断，AI会根据反馈调整画像重新匹配。" style="margin-top:8px;"></textarea>
+    <div class="feedback-result" id="feedbackResult"></div>
+    <div class="btn-row" style="margin-top:12px;margin-bottom:0;">
+      <button class="btn btn-outline btn-sm" onclick="resetFeedback()">🔄 重置反馈</button>
+      <button class="btn btn-primary btn-sm" onclick="submitBatchFeedback()" id="refineBtn">🔁 加入反馈，重新匹配</button>
+    </div>
+    ${batchFeedbackHistory.length > 0 ? `<div style="margin-top:12px;font-size:12px;color:var(--text2);">📝 已迭代 ${batchFeedbackHistory.length} 轮</div>` : ''}
   </div>`;
 
   document.getElementById('batchReport').innerHTML = html;
@@ -985,6 +1068,132 @@ function toggleDetail(i) {
       panel.innerHTML = dhtml;
     }
   }
+}
+
+// ==================== Batch Feedback & Iteration ====================
+function toggleFeedbackTag(el, tag) {
+  const idx = batchActiveFeedbackTags.indexOf(tag);
+  if (idx >= 0) {
+    batchActiveFeedbackTags.splice(idx, 1);
+    el.classList.remove('active');
+  } else {
+    batchActiveFeedbackTags.push(tag);
+    el.classList.add('active');
+  }
+}
+
+function resetFeedback() {
+  batchActiveFeedbackTags = [];
+  batchFeedbackHistory = [];
+  document.querySelectorAll('.feedback-tag').forEach(t => t.classList.remove('active'));
+  document.getElementById('feedbackNote').value = '';
+  const resultEl = document.getElementById('feedbackResult');
+  if (resultEl) { resultEl.classList.remove('show'); resultEl.textContent = ''; }
+  showToast('🔄 反馈已重置，可重新提交');
+}
+
+async function submitBatchFeedback() {
+  if (!getApiKey()) { openSettings(); return; }
+
+  const note = document.getElementById('feedbackNote').value.trim();
+  const tags = batchActiveFeedbackTags.join('；');
+  const feedback = [tags, note].filter(Boolean).join('。');
+
+  if (!feedback) { alert('请先选择反馈标签或填写补充说明'); return; }
+
+  const btn = document.getElementById('refineBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>重新匹配中...';
+  const resultEl = document.getElementById('feedbackResult');
+  resultEl.classList.remove('show');
+
+  try {
+    // Build enhanced JD with feedback context
+    const enhancedJdPrompt = buildEnhancedJdPrompt(feedback);
+    const enhancedJd = extractJSON(await callDeepSeek(enhancedJdPrompt, JSON.stringify({
+      original_position: batchJdCache.position || '',
+      original_hard: batchJdCache.hard_requirements || {},
+      original_soft: batchJdCache.soft_requirements || [],
+      feedback: feedback,
+      history: batchFeedbackHistory
+    }), 0.1, true));
+
+    console.log('画像迭代后JD:', enhancedJd);
+    batchFeedbackHistory.push({ feedback, enhancedJd, time: new Date().toLocaleTimeString() });
+
+    // Re-run matching with enhanced JD
+    const raw = document.getElementById('batchResumeInput').value.trim();
+    const resumes = raw.split(/^---+$/m).map(r => r.trim()).filter(r => r.length > 20);
+
+    if (resumes.length === 0) {
+      throw new Error('简历数据丢失，请重新导入');
+    }
+
+    const results = [];
+    for (let i = 0; i < resumes.length; i++) {
+      updateBatchProgress(`迭代匹配中 (${i+1}/${resumes.length})...`, (i+1)/resumes.length);
+      const resumeParsed = extractJSON(await callDeepSeek(RESUME_PROMPT, resumes[i], 0, true));
+      const matchInput = `【JD解析结果(已根据反馈迭代)】\n${JSON.stringify(enhancedJd, null, 2)}\n\n【简历解析结果】\n${JSON.stringify(resumeParsed, null, 2)}`;
+      const matchResult = extractJSON(await callDeepSeek(MATCH_PROMPT, matchInput, 0, true));
+      results.push({ resume: resumeParsed, match: matchResult, raw: resumes[i] });
+    }
+
+    updateBatchProgress(`✅ 迭代匹配完成（第${batchFeedbackHistory.length}轮）`, 1);
+
+    // Show feedback summary
+    batchActiveFeedbackTags = [];
+    document.getElementById('feedbackNote').value = '';
+    document.querySelectorAll('.feedback-tag').forEach(t => t.classList.remove('active'));
+
+    resultEl.textContent = `✅ 已根据反馈「${feedback.slice(0, 80)}...」重新匹配。共迭代 ${batchFeedbackHistory.length} 轮。`;
+    resultEl.className = 'feedback-result success show';
+
+    setTimeout(() => {
+      document.getElementById('batchProgress').classList.remove('active');
+      renderBatchReport(enhancedJd, results);
+    }, 400);
+
+  } catch(err) {
+    resultEl.textContent = '❌ 迭代匹配出错: ' + err.message;
+    resultEl.className = 'feedback-result show';
+    resultEl.style.background = '#fef2f2';
+    resultEl.style.color = '#991b1b';
+    console.error(err);
+    document.getElementById('batchProgress').classList.remove('active');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔁 加入反馈，重新匹配';
+  }
+}
+
+function buildEnhancedJdPrompt(feedback) {
+  return `你是一位招聘画像专家。用户在使用AI匹配后，给出了反馈。请根据反馈调整和增强原始的岗位JD画像。
+
+# 任务
+根据用户的反馈，调整以下内容：
+1. **硬性条件**：如果用户觉得太严/太松，调整学历、年限、必备技能的权重或门槛
+2. **软性能力**：如果用户补充了新的侧重点，增加或调整软性能力要求，并翻译成可验证的行为指标
+3. **整体画像**：补充上下文信息到岗位描述中
+
+# 用户反馈
+${feedback}
+${batchFeedbackHistory.length > 0 ? '\n# 历史迭代记录\n' + batchFeedbackHistory.map((h,i) => `第${i+1}轮: ${h.feedback}`).join('\n') : ''}
+
+# 输出格式（严格JSON，保持与原始JD解析相同的结构）
+{
+  "position": "岗位名称（可补充说明）",
+  "hard_requirements": {
+    "education": "学历要求",
+    "min_years": 数字,
+    "must_skills": ["必备技能"],
+    "other": []
+  },
+  "soft_requirements": [
+    {"label": "JD原文或补充表述", "behavior_indicator": "可验证的行为指标", "importance": "高/中"}
+  ],
+  "bonus": ["加分项"],
+  "_iteration_note": "本轮画像调整说明（一句中文）"
+}`;
 }
 
 // ==================== TAB 3: 漏斗诊断 ====================
@@ -1078,7 +1287,7 @@ async function runFunnel() {
 
 function renderFunnelReport(stages, diag) {
   const maxEntered = Math.max(...stages.map(s => s.entered));
-  const barColors = ['#6c5ce7', '#a29bfe', '#00d2a0', '#ffc048', '#ff6b6b', '#fd79a8'];
+  const barColors = ['#22c55e', '#4ade80', '#86efac', '#f59e0b', '#f97316', '#ef4444'];
 
   let html = `<div class="report-header">
     <div style="font-size:14px;color:var(--text2);">📈 招聘漏斗诊断报告</div>
@@ -1116,7 +1325,7 @@ function renderFunnelReport(stages, diag) {
   // Summary & priority
   html += `<div class="report-block"><h3>📋 总结与行动建议</h3>
     <div class="evidence">${diag.summary || ''}</div>
-    <div style="margin-top:16px;padding:16px;background:rgba(108,92,231,0.1);border-radius:8px;border:1px solid var(--accent);">
+    <div style="margin-top:16px;padding:16px;background:var(--accent-light);border-radius:10px;border:1px solid rgba(34,197,94,0.3);">
       <strong>🎯 优先级最高：</strong>${diag.priority_action || ''}
     </div>
   </div>`;
@@ -1313,7 +1522,131 @@ async function handleFileBatch(which) {
   const fileNameEl = document.getElementById(which === 'jd' ? 'batchJdFileName' : 'batchResumeFileName');
   const textarea = document.getElementById(which === 'jd' ? 'batchJdInput' : 'batchResumeInput');
   const card = fileInput.closest('.input-card');
-  await doHandleFile(fileInput, fileNameEl, textarea, card);
+
+  const files = Array.from(fileInput.files);
+  if (files.length === 0) return;
+
+  // JD: single file only
+  if (which === 'jd') {
+    await doHandleFile(fileInput, fileNameEl, textarea, card);
+    return;
+  }
+
+  // Resume: multiple files
+  await loadJSZip();
+  fileNameEl.textContent = `⏳ 解析 ${files.length} 个文件...`;
+  fileNameEl.className = 'file-name';
+  if (card) card.style.opacity = '0.7';
+
+  const results = [];
+  const fileNames = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    try {
+      const ext = file.name.split('.').pop().toLowerCase();
+      let text = '';
+      if (ext === 'txt' || ext === 'md') { text = await file.text(); }
+      else if (ext === 'docx') { text = await parseDOCX(file); }
+      else if (ext === 'pdf') { text = await parsePDF(file); }
+      else if (['png', 'jpg', 'jpeg'].includes(ext)) { text = await parseImage(file); }
+      else { fileNames.push(`❌ ${file.name} (格式不支持)`); continue; }
+
+      if (text && text.trim().length > 10) {
+        results.push(text.trim());
+        fileNames.push(`✅ ${file.name}`);
+      } else {
+        fileNames.push(`⚠️ ${file.name} (内容为空)`);
+      }
+    } catch(e) {
+      fileNames.push(`❌ ${file.name} (${e.message})`);
+    }
+  }
+
+  // Merge into textarea (append or replace)
+  const existing = textarea.value.trim();
+  const newContent = results.join('\n---\n');
+  textarea.value = existing ? existing + '\n---\n' + newContent : newContent;
+
+  fileNameEl.textContent = `✅ 成功导入 ${results.length}/${files.length} 个文件`;
+  fileNameEl.className = 'file-name';
+  updateBatchFileList(fileNames);
+  if (card) card.style.opacity = '1';
+  fileInput.value = '';
+}
+
+// ZIP upload handler
+async function handleBatchZip() {
+  const fileInput = document.getElementById('batchZipFile');
+  const fileNameEl = document.getElementById('batchResumeFileName');
+  const textarea = document.getElementById('batchResumeInput');
+  const card = fileInput.closest('.input-card');
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  await loadJSZip();
+  fileNameEl.textContent = '⏳ 正在解压 ZIP...';
+  fileNameEl.className = 'file-name';
+  if (card) card.style.opacity = '0.7';
+
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const results = [];
+    const fileNames = [];
+    const supportedExts = ['txt', 'md', 'docx', 'pdf'];
+
+    for (const [name, entry] of Object.entries(zip.files)) {
+      if (entry.dir) continue;
+      const ext = name.split('.').pop().toLowerCase();
+      if (!supportedExts.includes(ext)) { fileNames.push(`⏭️ ${name} (跳过)`); continue; }
+      if (name.startsWith('__MACOSX') || name.includes('/.')) { fileNames.push(`⏭️ ${name} (系统文件)`); continue; }
+
+      try {
+        let text;
+        if (ext === 'txt' || ext === 'md') {
+          text = await entry.async('string');
+        } else if (ext === 'docx') {
+          const blob = await entry.async('blob');
+          const f = new File([blob], name, { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+          text = await parseDOCX(f);
+        } else if (ext === 'pdf') {
+          const blob = await entry.async('blob');
+          const f = new File([blob], name, { type: 'application/pdf' });
+          text = await parsePDF(f);
+        }
+
+        if (text && text.trim().length > 10) {
+          results.push(text.trim());
+          fileNames.push(`✅ ${name}`);
+        } else {
+          fileNames.push(`⚠️ ${name} (内容为空)`);
+        }
+      } catch(e) {
+        fileNames.push(`❌ ${name} (${e.message})`);
+      }
+    }
+
+    const existing = textarea.value.trim();
+    textarea.value = existing ? existing + '\n---\n' + results.join('\n---\n') : results.join('\n---\n');
+
+    fileNameEl.textContent = `✅ ZIP解压成功：${results.length} 份简历`;
+    fileNameEl.className = 'file-name';
+    updateBatchFileList(fileNames);
+  } catch(e) {
+    fileNameEl.textContent = `❌ ZIP解析失败: ${e.message}`;
+    fileNameEl.className = 'file-name error';
+  } finally {
+    if (card) card.style.opacity = '1';
+    fileInput.value = '';
+  }
+}
+
+function updateBatchFileList(names) {
+  const el = document.getElementById('batchFileList');
+  if (!names || names.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<span style="font-weight:600;">📋 已导入文件：</span> ' +
+    names.slice(0, 30).map(n => `<span class="file-list-item">${n}</span>`).join('') +
+    (names.length > 30 ? ` <span style="color:var(--text2);">...等${names.length}个文件</span>` : '');
 }
 
 async function doHandleFile(fileInput, fileNameEl, textarea, card) {
