@@ -597,9 +597,6 @@ async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3, jsonMo
     temperature,
     max_tokens: 4096
   };
-  if (jsonMode || temperature === 0) {
-    body.response_format = { type: 'json_object' };
-  }
   const res = await fetch(DEEPSEEK_URL, {
     method: 'POST',
     headers: {
@@ -609,8 +606,13 @@ async function callDeepSeek(systemPrompt, userMessage, temperature = 0.3, jsonMo
     body: JSON.stringify(body)
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API 错误 (${res.status})`);
+    const errText = await res.text();
+    let errMsg = '';
+    try {
+      const errJson = JSON.parse(errText);
+      errMsg = errJson.error?.message || '';
+    } catch(e) {}
+    throw new Error(errMsg || `API ${res.status}: ${errText.slice(0, 100)}`);
   }
   const data = await res.json();
   return data.choices[0].message.content;
