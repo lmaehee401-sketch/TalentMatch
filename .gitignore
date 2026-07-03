@@ -1,0 +1,6 @@
+node_modules/
+*.ps1
+extract_colors.js
+analyze_refs.js
+logo-preview.html
+package*.json
