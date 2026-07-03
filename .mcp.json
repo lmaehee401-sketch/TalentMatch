@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agent-vision-mcp": {
+      "type": "stdio",
+      "command": "agent-vision-mcp",
+      "args": []
+    }
+  }
+}

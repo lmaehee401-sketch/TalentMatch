@@ -788,6 +788,12 @@ async function runMatch() {
   if (!jd || !resume) { alert('请先粘贴 JD 和简历文本'); return; }
   if (!getApiKey()) { openSettings(); return; }
 
+  // Cache raw text for feedback iteration
+  singleRawJd = jd;
+  singleRawResume = resume;
+  singleFeedbackHistory = [];
+  singleActiveFeedbackTags = [];
+
   const btn = document.getElementById('matchBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>分析中...';
@@ -835,6 +841,11 @@ function updateProgress(stepNum, text) {
 }
 
 function renderSingleReport(jd, resume, match, interview) {
+  // Cache for feedback iteration
+  singleJdCache = jd;
+  singleResumeCache = resume;
+  singleMatchCache = match;
+
   const sb = match.score_breakdown;
   const score = match.overall_score;
   const verdict = match.verdict;
@@ -896,9 +907,114 @@ function renderSingleReport(jd, resume, match, interview) {
     📋 本报告由 <strong>TalentMatch</strong> AI 自动生成 · 辅助招聘决策 · 最终判断请结合面试实际表现
   </div>`;
 
+  // Feedback panel for single match
+  html += `<div class="feedback-panel" id="singleFeedbackPanel">
+    <h3>💬 反馈 & 画像迭代</h3>
+    <p style="font-size:12px;color:#92400e;margin-bottom:10px;">
+      匹配结果是否符合预期？补充你的判断，AI 将根据反馈调整画像并重新匹配。
+    </p>
+    <div class="feedback-tags">
+      <span class="feedback-tag" onclick="toggleSingleFeedbackTag(this, '太严格了，放宽硬性条件')">🔽 太严格了</span>
+      <span class="feedback-tag" onclick="toggleSingleFeedbackTag(this, '太宽松了，收紧匹配标准')">🔼 太宽松了</span>
+      <span class="feedback-tag" onclick="toggleSingleFeedbackTag(this, '增加硬性条件要求')">📋 补充硬性条件</span>
+      <span class="feedback-tag" onclick="toggleSingleFeedbackTag(this, '调整软性能力侧重')">🎯 调整软性侧重</span>
+      <span class="feedback-tag" onclick="toggleSingleFeedbackTag(this, '补充行业/岗位上下文')">🏢 补充上下文</span>
+    </div>
+    <textarea id="singleFeedbackNote" placeholder="例如：我认为这个候选人的跨团队协作能力其实很强，简历里虽然没明写但项目经历能看出来...&#10;&#10;这里写你的补充判断，AI会根据反馈调整画像重新匹配。" style="margin-top:8px;"></textarea>
+    <div class="feedback-result" id="singleFeedbackResult"></div>
+    <div class="btn-row" style="margin-top:12px;margin-bottom:0;">
+      <button class="btn btn-outline btn-sm" onclick="resetSingleFeedback()">🔄 重置</button>
+      <button class="btn btn-primary btn-sm" onclick="submitSingleFeedback()" id="singleRefineBtn">🔁 加入反馈，重新匹配</button>
+    </div>
+    ${singleFeedbackHistory.length > 0 ? `<div style="margin-top:12px;font-size:12px;color:var(--text2);">📝 已迭代 ${singleFeedbackHistory.length} 轮</div>` : ''}
+  </div>`;
+
   document.getElementById('report').innerHTML = html;
   document.getElementById('report').classList.add('active');
   document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== 单份匹配反馈 ====================
+function toggleSingleFeedbackTag(el, tag) {
+  const idx = singleActiveFeedbackTags.indexOf(tag);
+  if (idx >= 0) {
+    singleActiveFeedbackTags.splice(idx, 1);
+    el.classList.remove('active');
+  } else {
+    singleActiveFeedbackTags.push(tag);
+    el.classList.add('active');
+  }
+}
+
+function resetSingleFeedback() {
+  singleActiveFeedbackTags = [];
+  singleFeedbackHistory = [];
+  document.querySelectorAll('#panelSingle .feedback-tag').forEach(t => t.classList.remove('active'));
+  document.getElementById('singleFeedbackNote').value = '';
+  const r = document.getElementById('singleFeedbackResult');
+  if (r) { r.classList.remove('show'); r.textContent = ''; }
+  showToast('🔄 反馈已重置');
+}
+
+async function submitSingleFeedback() {
+  if (!getApiKey()) { openSettings(); return; }
+  if (!singleRawJd || !singleRawResume) { alert('请先完成一次匹配分析'); return; }
+
+  const note = document.getElementById('singleFeedbackNote').value.trim();
+  const tags = singleActiveFeedbackTags.join('；');
+  const feedback = [tags, note].filter(Boolean).join('。');
+  if (!feedback) { alert('请先选择反馈标签或填写补充说明'); return; }
+
+  const btn = document.getElementById('singleRefineBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>重新匹配中...';
+  document.getElementById('report').classList.remove('active');
+  document.getElementById('progress').classList.add('active');
+
+  try {
+    const enhancedJdPrompt = buildEnhancedJdPrompt(feedback);
+    const enhancedJd = extractJSON(await callDeepSeek(enhancedJdPrompt, JSON.stringify({
+      original_position: singleJdCache.position || '',
+      original_hard: singleJdCache.hard_requirements || {},
+      original_soft: singleJdCache.soft_requirements || [],
+      feedback: feedback,
+      history: singleFeedbackHistory
+    }), 0.1));
+
+    console.log('单份迭代JD:', enhancedJd);
+    singleFeedbackHistory.push({ feedback, enhancedJd, time: new Date().toLocaleTimeString() });
+
+    updateProgress(0, '正在用新画像解析JD...');
+    const jdParsed = enhancedJd;
+
+    updateProgress(1, '正在解析简历...');
+    const resumeParsed = extractJSON(await callDeepSeek(RESUME_PROMPT, singleRawResume, 0));
+
+    updateProgress(2, '正在重新匹配...');
+    const matchInput = `【JD解析结果(已迭代)】\n${JSON.stringify(jdParsed, null, 2)}\n\n【简历解析结果】\n${JSON.stringify(resumeParsed, null, 2)}`;
+    const matchResult = extractJSON(await callDeepSeek(MATCH_PROMPT, matchInput, 0));
+
+    updateProgress(3, '正在生成面试追问...');
+    const interviewRaw = await callDeepSeek(INTERVIEW_PROMPT, JSON.stringify(matchResult, null, 2), 0.5);
+
+    updateProgress(4, '✅ 迭代分析完成');
+    singleActiveFeedbackTags = [];
+    document.getElementById('singleFeedbackNote').value = '';
+    document.querySelectorAll('#panelSingle .feedback-tag').forEach(t => t.classList.remove('active'));
+
+    setTimeout(() => {
+      document.getElementById('progress').classList.remove('active');
+      renderReport(jdParsed, resumeParsed, matchResult, interviewRaw);
+    }, 500);
+
+  } catch(err) {
+    alert('迭代匹配出错: ' + err.message);
+    console.error(err);
+    document.getElementById('progress').classList.remove('active');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔁 加入反馈，重新匹配';
+  }
 }
 
 // ==================== TAB 2: 批量对比 ====================
@@ -964,6 +1080,15 @@ let batchResultsCache = [];
 let batchJdCache = null;
 let batchFeedbackHistory = [];
 let batchActiveFeedbackTags = [];
+
+// Single match feedback state
+let singleRawJd = '';
+let singleRawResume = '';
+let singleJdCache = null;
+let singleResumeCache = null;
+let singleMatchCache = null;
+let singleFeedbackHistory = [];
+let singleActiveFeedbackTags = [];
 
 function renderBatchReport(jd, results) {
   batchResultsCache = results;
